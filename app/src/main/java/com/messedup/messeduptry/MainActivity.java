@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +21,7 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -27,6 +32,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class MainActivity extends AppCompatActivity {
 
     Button SignOutBtn;
+    SearchView searchMess;
     Toolbar toolbar;
     private String[] areaListArray;
     ArrayAdapter<String> adapter;
@@ -39,10 +45,47 @@ public class MainActivity extends AppCompatActivity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         initToolBar();
+        final BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                findViewById(R.id.navigation);
 
+
+
+        bottomNavigationView.setOnNavigationItemSelectedListener
+                (new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        Fragment selectedFragment = null;
+                        switch (item.getItemId()) {
+                            case R.id.action_item1:
+                                selectedFragment = MenuFragment.newInstance();
+                                break;
+                            case R.id.action_item2:
+                                selectedFragment = ProfileFragment.newInstance();
+                                break;
+
+                        }
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.frame_layout, selectedFragment);
+                        transaction.commit();
+                        return true;
+                    }
+                });
+
+
+
+        //Manually displaying the first fragment - one time only
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, MenuFragment.newInstance());
+        transaction.commit();
+
+        //Used to select an item programmatically
+        //bottomNavigationView.getMenu().getItem(2).setChecked(true);
 
 
         SignOutBtn = (Button)findViewById(R.id.LogOutBtn);
+        searchMess=(SearchView)findViewById(R.id.action_search);
+
+
 
         SignOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,11 +93,27 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseAuth.getInstance().signOut();
 
 
-                Intent LogoutIntent = new Intent(MainActivity.this,GoogleSignInActivity.class);
+                Intent LogoutIntent = new Intent(MainActivity.this,ChooserActivity.class);
                 startActivity(LogoutIntent);
 
             }
         });
+
+        TextView phoneTxtView = (TextView)findViewById(R.id.PhoneNumTxtView);
+
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null) {
+            if (FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber() != null)
+                phoneTxtView.setText(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            else
+                phoneTxtView.setText("Error1");
+
+            phoneTxtView.setVisibility(View.GONE);
+        }
+        else
+        {
+            phoneTxtView.setText("Error2");
+        }
+
 
 
     }

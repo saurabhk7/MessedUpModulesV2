@@ -3,7 +3,11 @@
     <color name="colorPrimary">#cb202d</color>
     <color name="colorPrimaryDark">#bf1d29</color>
     <color name="colorAccent">#cb202d</color>
-    <color name="grey_ivory5">#f57f17</color>
+    <color name="grey_ivory5">#c5fd9f13</color>
     <color name="grey_100">#F5F5F5</color>
     <color name="grey_300">#E0E0E0</color>
+    <color name="white">#FFFFFF</color>
+    <color name="grey">#878787</color>
+
+
 </resources>

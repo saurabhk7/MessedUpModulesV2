@@ -3,30 +3,52 @@ package com.messedup.messeduptry;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
+
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+
 import java.util.Arrays;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class PhoneNumberAuthentication extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+
+    AuthCredential GoogleSignInCredential;
+
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            // already signed in
-            startActivity(new Intent(PhoneNumberAuthentication.this, MainActivity.class));
-            finish();
-        } else {
-            // not signed in
+
+        Intent recvGoogleInt=getIntent();
+        GoogleSignInCredential= (AuthCredential) recvGoogleInt.getExtras().get("GoogleCredential");
+        Log.d("RECV CRED",GoogleSignInCredential.getProvider());
+
+
+           // Toast.makeText(PhoneNumberAuthentication.this,"Signed In",Toast.LENGTH_SHORT).show();
+
             startActivityForResult(
                     AuthUI.getInstance()
                             .createSignInIntentBuilder()
@@ -36,8 +58,10 @@ public class PhoneNumberAuthentication extends AppCompatActivity {
                                     ))
                             .build(),
                     RC_SIGN_IN);
+
         }
-    }
+
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // RC_SIGN_IN is the request code you passed into startActivityForResult(...) when starting the sign in flow.
@@ -45,9 +69,14 @@ public class PhoneNumberAuthentication extends AppCompatActivity {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             // Successfully signed in
             if (resultCode == ResultCodes.OK) {
-                startActivity(new Intent(PhoneNumberAuthentication.this,MainActivity.class));
-                finish();
-                return;
+
+                Log.d("RESULT CODE", "OK");
+
+
+                LinkingAuthProv();
+
+
+
             } else {
                 // Sign in failed
                 if (response == null) {
@@ -66,8 +95,45 @@ public class PhoneNumberAuthentication extends AppCompatActivity {
             }
             Log.e("Login","Unknown sign in response");
         }
+
+
     }
-    @Override
+
+    public void LinkingAuthProv()
+    {
+
+        Log.d("IN LINKING AUTH CRED",GoogleSignInCredential.getProvider());
+        Log.d("LINKINGAUTHCURRENTUSER",FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+
+        FirebaseAuth.getInstance().getCurrentUser().linkWithCredential(GoogleSignInCredential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("Linkingauth", "linkWithCredential:success");
+                            FirebaseUser user = task.getResult().getUser();
+                            Log.d("Linkingauth", user.getUid());
+
+
+                            startActivity(new Intent(PhoneNumberAuthentication.this,MainActivity.class));
+                            finish();
+
+                            //updateUI(user);
+                        } else {
+                            Log.w("Linkingauth", "linkWithCredential:failure", task.getException());
+                            Toast.makeText(PhoneNumberAuthentication.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                           // updateUI(null);
+                        }
+
+                        // ...
+                    }
+                });
+    }
+
+
+        @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }

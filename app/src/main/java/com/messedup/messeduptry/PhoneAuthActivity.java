@@ -70,10 +70,12 @@ public class PhoneAuthActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_auth);
 
-        // Restore instance state
+                // Restore instance state
         if (savedInstanceState != null) {
             onRestoreInstanceState(savedInstanceState);
         }
+
+
 
         // Assign views
         mPhoneNumberViews = (ViewGroup) findViewById(R.id.phone_auth_fields);

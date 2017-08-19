@@ -9,24 +9,35 @@ import android.widget.Button;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class GoogleSignInActivity extends AppCompatActivity {
+public class ChooserActivity extends AppCompatActivity {
 
-    Button PhoneAuthWithoutUIBtn,PhoneAuthWithUIBtn,toMainActBtn;
+    Button PhoneAuthWithoutUIBtn,PhoneAuthWithUIBtn,toMainActBtn,GoogleSignBtn;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_google_sign_in);
+        setContentView(R.layout.activity_chooser);
 
         PhoneAuthWithoutUIBtn=(Button)findViewById(R.id.PhoneAuthWithoutUIBtn);
         PhoneAuthWithUIBtn=(Button)findViewById(R.id.PhoneAuthWithUIBtn);
         toMainActBtn=(Button)findViewById(R.id.MainActBtn);
+        GoogleSignBtn=(Button)findViewById(R.id.GoogleSignBtn);
+
+        GoogleSignBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent toGoogleSignInInt=new Intent(ChooserActivity.this,GoogleSignIn.class);
+                startActivity(toGoogleSignInInt);
+            }
+        });
+
+
 
         toMainActBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent toMainActInt=new Intent(GoogleSignInActivity.this,MainActivity.class);
+                Intent toMainActInt=new Intent(ChooserActivity.this,MainActivity.class);
                 startActivity(toMainActInt);
             }
         });
@@ -35,14 +46,14 @@ public class GoogleSignInActivity extends AppCompatActivity {
         PhoneAuthWithoutUIBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent gotoPhoneAuthInt=new Intent(GoogleSignInActivity.this,PhoneAuthActivity.class);
+                Intent gotoPhoneAuthInt=new Intent(ChooserActivity.this,PhoneAuthActivity.class);
                 startActivity(gotoPhoneAuthInt);
             }
         });
         PhoneAuthWithUIBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent gotoPhoneAuthUIInt=new Intent(GoogleSignInActivity.this,PhoneNumberAuthentication.class);
+                Intent gotoPhoneAuthUIInt=new Intent(ChooserActivity.this,PhoneNumberAuthentication.class);
                 startActivity(gotoPhoneAuthUIInt);
             }
         });

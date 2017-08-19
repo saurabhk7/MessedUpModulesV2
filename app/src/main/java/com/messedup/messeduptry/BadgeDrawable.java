@@ -62,9 +62,9 @@ public class BadgeDrawable extends Drawable {
 
 	        /*Using Math.max rather than Math.min */
 
-        float radius = ((Math.max(width, height) / 2)) / 2;
-        float centerX = (width - radius - 1) +5;
-        float centerY = radius -5;
+        float radius = ((Math.max(width, height) / 2)) / 3;
+        float centerX = (width - radius - 1) -5;
+        float centerY = radius +5;
         if(mCount.length() <= 2){
             // Draw badge circle.
             canvas.drawCircle(centerX, centerY, (int)(radius+7.5), mBadgePaint1);
