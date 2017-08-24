@@ -41,4 +41,16 @@
         android:layout_below="@+id/PhoneAuthWithUIBtn"
         android:layout_centerHorizontal="true"
         android:id="@+id/GoogleSignBtn" />
+
+    <Button
+        android:text="Loading.."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/MainActBtn"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/LoadinBtn" />
+
+
+
+
 </RelativeLayout>

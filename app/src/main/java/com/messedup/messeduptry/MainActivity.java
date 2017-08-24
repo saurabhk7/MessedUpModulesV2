@@ -3,6 +3,7 @@ package com.messedup.messeduptry;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.support.annotation.NonNull;
@@ -25,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -82,22 +85,11 @@ public class MainActivity extends AppCompatActivity {
         //bottomNavigationView.getMenu().getItem(2).setChecked(true);
 
 
-        SignOutBtn = (Button)findViewById(R.id.LogOutBtn);
         searchMess=(SearchView)findViewById(R.id.action_search);
 
 
 
-        SignOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
 
-
-                Intent LogoutIntent = new Intent(MainActivity.this,ChooserActivity.class);
-                startActivity(LogoutIntent);
-
-            }
-        });
 
         TextView phoneTxtView = (TextView)findViewById(R.id.PhoneNumTxtView);
 
@@ -113,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
         {
             phoneTxtView.setText("Error2");
         }
+
+
+
 
 
 

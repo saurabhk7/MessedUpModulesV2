@@ -2,14 +2,20 @@ package com.messedup.messeduptry;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.dd.processbutton.iml.ActionProcessButton;
+import com.github.johnpersano.supertoasts.library.Style;
+import com.github.johnpersano.supertoasts.library.SuperActivityToast;
+import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -60,6 +66,7 @@ public class GoogleSignIn extends AppCompatActivity {
         };
 
         mGoogleBtn=(SignInButton)findViewById(R.id.googleBtn);
+        Button mToastBtn = (Button) findViewById(R.id.ToastTestBtn);
 
         btnSignIn = (ActionProcessButton) findViewById(R.id.btnSignIn);
        // you can display endless google like progress indicator
@@ -81,7 +88,14 @@ public class GoogleSignIn extends AppCompatActivity {
                 .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
                     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        Toast.makeText(GoogleSignIn.this,"Error",Toast.LENGTH_SHORT).show();
+                        SuperActivityToast.create(GoogleSignIn.this, new Style(), Style.TYPE_BUTTON)
+                                .setButtonText("RETRY")
+                                .setIconResource(Style.ICONPOSITION_LEFT,R.drawable.ic_error_outline_white_24dp)
+                                .setText("   Oops, Google Sign In Failed!")
+                                .setDuration(Style.DURATION_LONG)
+                                .setFrame(Style.FRAME_LOLLIPOP)
+                                .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED))
+                                .setAnimations(Style.ANIMATIONS_POP).show();
                     }
                 }).addApi(Auth.GOOGLE_SIGN_IN_API,gso)
                 .build();
@@ -95,6 +109,25 @@ public class GoogleSignIn extends AppCompatActivity {
 
             }
         });
+
+        mToastBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SuperActivityToast.create(GoogleSignIn.this, new Style(), Style.TYPE_BUTTON)
+                        .setButtonText("RETRY")
+                        .setIconResource(Style.ICONPOSITION_LEFT,R.drawable.ic_error_outline_white_24dp)
+                        .setText("   Oops, Google Sign In Failed!")
+                        .setDuration(Style.DURATION_LONG)
+                        .setFrame(Style.FRAME_LOLLIPOP)
+                        .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED))
+                        .setAnimations(Style.ANIMATIONS_POP).show();
+
+                btnSignIn
+                        .setProgress(-1);
+            }
+        });
+
+
 
 
 
@@ -129,11 +162,31 @@ public class GoogleSignIn extends AppCompatActivity {
 
                 }
 
+                SuperActivityToast.create(this, new Style(), Style.TYPE_STANDARD)
+                        .setText("Logged In as: "+account.getEmail())
+                        .setDuration(Style.DURATION_LONG)
+                        .setFrame(Style.FRAME_LOLLIPOP)
+                        .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_GREEN))
+                        .setAnimations(Style.ANIMATIONS_POP).show();
 
-                Toast.makeText(GoogleSignIn.this,account.getEmail(),Toast.LENGTH_SHORT).show();
+
+
+              //  Toast.makeText(GoogleSignIn.this,account.getEmail(),Toast.LENGTH_SHORT).show();
 
                 firebaseAuthWithGoogle(account);
             } else {
+
+
+                    SuperActivityToast.create(GoogleSignIn.this, new Style(), Style.TYPE_BUTTON)
+                            .setButtonText("RETRY")
+                            .setIconResource(Style.ICONPOSITION_LEFT,R.drawable.ic_error_outline_white_24dp)
+                            .setText("   Oops, Google Sign In Failed!")
+                            .setDuration(Style.DURATION_LONG)
+                            .setFrame(Style.FRAME_LOLLIPOP)
+                            .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED))
+                            .setAnimations(Style.ANIMATIONS_POP).show();
+
+
                 // Google Sign In failed, update UI appropriately
                 // ...
             }

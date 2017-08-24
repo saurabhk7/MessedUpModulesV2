@@ -19,13 +19,6 @@
     </android.support.v7.widget.Toolbar>
 
 
-    <Button
-        android:text="Log Out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/LogOutBtn" />
 
     <FrameLayout
         android:id="@+id/frame_layout"
@@ -40,6 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/PhoneNumTxtView" />
+
     </FrameLayout>
 
     <View

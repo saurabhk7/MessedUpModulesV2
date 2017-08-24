@@ -25,25 +25,34 @@
 
     </com.google.android.gms.common.SignInButton>
 
+    <Button
+        android:text="Show Toast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="136dp"
+        android:id="@+id/ToastTestBtn" />
+
     <com.dd.processbutton.iml.ActionProcessButton
         android:id="@+id/btnSignIn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:text="Google Sign In"
         android:hapticFeedbackEnabled="true"
         android:textColor="@color/grey"
-        android:drawableStart="@drawable/common_google_signin_btn_icon_light"
+        android:drawableStart="@drawable/googleg_standard_color_18"
         android:textSize="18sp"
         app:pb_colorComplete="@color/green_complete"
         app:pb_colorNormal="@color/white"
         app:pb_colorPressed="@color/colorPrimaryDark"
         app:pb_colorProgress="@color/blue_pressed"
         app:pb_textComplete="Success"
-        app:pb_textProgress="Signing In.."
-        app:pb_textError="Error"
-        app:pb_colorError="@color/red_error" />
-
+        app:pb_textProgress="Signing In..."
+        app:pb_textError="Retry Sign In"
+        app:pb_colorError="@android:color/white"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

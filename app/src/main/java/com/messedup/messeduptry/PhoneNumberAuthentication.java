@@ -14,6 +14,9 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
+import com.github.johnpersano.supertoasts.library.Style;
+import com.github.johnpersano.supertoasts.library.SuperActivityToast;
+import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -81,14 +84,43 @@ public class PhoneNumberAuthentication extends AppCompatActivity {
                 // Sign in failed
                 if (response == null) {
                     // User pressed back button
+                    SuperActivityToast.create(PhoneNumberAuthentication.this, new Style(), Style.TYPE_STANDARD)
+                            .setIconResource(Style.ICONPOSITION_LEFT,R.drawable.ic_error_outline_white_24dp)
+                            .setText("   Login Cancelled!")
+                            .setDuration(Style.DURATION_LONG)
+                            .setFrame(Style.FRAME_LOLLIPOP)
+                            .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_AMBER))
+                            .setAnimations(Style.ANIMATIONS_POP).show();
+
+                    startActivity(new Intent(this,GoogleSignIn.class));
+
+
                     Log.e("Login","Login canceled by User");
                     return;
                 }
                 if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
+
+                    SuperActivityToast.create(PhoneNumberAuthentication.this, new Style(), Style.TYPE_BUTTON)
+                            .setButtonText("RETRY")
+                            .setIconResource(Style.ICONPOSITION_LEFT,R.drawable.ic_error_outline_white_24dp)
+                            .setText("   No Internet Connection!")
+                            .setDuration(Style.DURATION_LONG)
+                            .setFrame(Style.FRAME_LOLLIPOP)
+                            .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_AMBER))
+                            .setAnimations(Style.ANIMATIONS_POP).show();
                     Log.e("Login","No Internet Connection");
                     return;
                 }
                 if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+
+                    SuperActivityToast.create(PhoneNumberAuthentication.this, new Style(), Style.TYPE_STANDARD)
+                            .setIconResource(Style.ICONPOSITION_LEFT,R.drawable.ic_error_outline_white_24dp)
+                            .setText("   Oops, Some Error occurred!")
+                            .setDuration(Style.DURATION_LONG)
+                            .setFrame(Style.FRAME_LOLLIPOP)
+                            .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_AMBER))
+                            .setAnimations(Style.ANIMATIONS_POP).show();
+
                     Log.e("Login","Unknown Error");
                     return;
                 }

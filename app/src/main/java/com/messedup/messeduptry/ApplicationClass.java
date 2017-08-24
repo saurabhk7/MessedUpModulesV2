@@ -21,7 +21,7 @@ public class ApplicationClass extends Application {
 
 
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("fonts/Raleway-SemiBold.ttf")
+                .setDefaultFontPath("fonts/Raleway-Medium.ttf")
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );

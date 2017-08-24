@@ -1,75 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/card_view"
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<android.support.v7.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="8dp"
+    android:id="@+id/cv"
+    android:layout_marginBottom="0dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp">
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_margin="10dp"
-        android:layout_height="wrap_content"
-        card_view:cardCornerRadius="4dp"
-        card_view:elevation="14dp">
+        android:layout_height="wrap_content">
 
-        <RelativeLayout
+
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            app:srcCompat="@drawable/kamkaali_kheer"
+            android:scaleType="centerCrop"
+            android:id="@+id/imageView"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_height="90dp " />
 
-            <ImageView
-                android:id="@+id/iv_image"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:src="@drawable/ic_local_dining_grey_24dp">
-            </ImageView>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="5dp"
+            android:padding="5dp"
+            android:layout_below="@id/imageView"
+            android:layout_height="wrap_content"
+            android:id="@+id/SpecialLayout">
 
             <TextView
-                android:id="@+id/tv_text"
-                android:layout_toRightOf ="@+id/iv_image"
+                android:text="Menu:"
                 android:layout_width="wrap_content"
-                android:text="MESS NAME"
                 android:layout_height="wrap_content"
-                android:gravity="center" >
-            </TextView>
+                android:layout_below="@id/imageView"
+                android:layout_marginRight="7dp"
+                android:id="@+id/SpecialTextView"
+                android:textSize="20sp"
+                android:textColor="#303030"
+                android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/tv_blah0"
+            <ListView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MENU LINE 1"
-                android:layout_below="@+id/tv_text"
-                android:layout_toRightOf="@+id/iv_image"
-                android:layout_toEndOf="@+id/iv_image">
-            </TextView>
-            <TextView
-                android:id="@+id/tv_blah"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MENU LINE 2"
-                android:layout_below="@+id/tv_blah0"
-                android:layout_toRightOf="@+id/iv_image"
-                android:layout_toEndOf="@+id/iv_image">
-            </TextView>
-            <TextView
-                android:id="@+id/tv_blah1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MENU LINE 3"
-                android:layout_below="@+id/tv_blah"
-                android:layout_toRightOf="@+id/iv_image"
-                android:layout_toEndOf="@+id/iv_image">
-            </TextView>
-            <TextView
-                android:id="@+id/tv_blah2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MENU LINE 4"
-                android:layout_below="@+id/tv_blah1"
-                android:layout_toRightOf="@+id/iv_image"
-                android:layout_toEndOf="@+id/iv_image">
-            </TextView>
+                android:layout_height="61dp"
+                android:footerDividersEnabled="false"
+                android:headerDividersEnabled="false"
+                android:dividerHeight="0.0sp"
+                android:clickable="false"
+                android:divider="@android:color/transparent"
+                android:id="@+id/SpecialListView"
+                android:scrollbars="none" />
 
-        </RelativeLayout>
-    </android.support.v7.widget.CardView>
+        </LinearLayout>
 
-</RelativeLayout>
+       <View
+            android:layout_width="wrap_content"
+            android:layout_height="3dp"
+            android:id="@+id/below_mess_name_view"
+            android:elevation="0dp"
+            android:layout_below="@id/SpecialLayout"
+            android:background="@drawable/shadow"
+            android:layout_alignParentTop="false"
+            android:layout_alignParentEnd="true"
+            android:layout_marginLeft="20dp"
+           android:visibility="gone"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="2dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_below="@id/SpecialLayout"
+            android:layout_width="match_parent"
+            android:id="@+id/line1_layout"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:padding="5dp"
+            android:layout_alignStart="@+id/below_mess_name_view"
+            android:layout_alignEnd="@+id/below_mess_name_view">
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="120dp"
+                android:footerDividersEnabled="false"
+                android:headerDividersEnabled="false"
+                android:dividerHeight="0.0sp"
+                android:clickable="false"
+                android:divider="@android:color/transparent"
+                android:layout_weight="1"
+                android:id="@+id/list_view_1"
+                />
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="120dp"
+                android:dividerHeight="0.0sp"
+                android:clickable="false"
+                android:divider="@android:color/transparent"
+                android:footerDividersEnabled="false"
+                android:headerDividersEnabled="false"
+                android:layout_weight="1"
+                android:id="@+id/list_view_2" />
+
+        </LinearLayout>
+
+        <TextView
+            android:text="Anand Food Xprs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/mess_name"
+            android:textAlignment="textStart"
+            android:textSize="22sp"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:padding="5dp"
+            android:layout_alignBottom="@+id/imageView"
+            android:layout_alignParentStart="true" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>
+
+
+</LinearLayout>

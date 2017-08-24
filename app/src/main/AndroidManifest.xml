@@ -4,9 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-
     <application
-
         android:name=".ApplicationClass"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -25,9 +23,12 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-
+        <activity android:name=".MenuFragment" />
+        <activity android:name=".ProfileFragment" />
         <activity android:name=".Main2Activity" />
-        <activity android:name=".GoogleSignIn"></activity>
+        <activity android:name=".GoogleSignIn" />
+        <activity android:name=".CardView" />
+        <activity android:name=".CardViewActivity"></activity>
     </application>
 
 </manifest>

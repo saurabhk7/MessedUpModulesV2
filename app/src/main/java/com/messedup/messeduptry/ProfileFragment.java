@@ -1,5 +1,6 @@
 package com.messedup.messeduptry;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +21,9 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 public class ProfileFragment extends Fragment {
+
+    Button SignOutBtn;
+
     public static ProfileFragment newInstance() {
         ProfileFragment fragment = new ProfileFragment();
         return fragment;
@@ -65,7 +70,8 @@ public class ProfileFragment extends Fragment {
                 if(providerId.equals("google.com"))
                    mNameTxtView.setText(name);
                 String email = profile.getEmail();
-                Log.d("-----PROVIDER "+i+" ----- "+i,email);
+                if(providerId.equals("firebase"))
+                   Log.d("-----PROVIDER "+i+" ----- "+i,email);
 
 
                 if(providerId.equals("google.com")) {
@@ -110,6 +116,20 @@ public class ProfileFragment extends Fragment {
         }
 
 
+        SignOutBtn = (Button)ProfileView.findViewById(R.id.LogOutBtn);
+
+
+        SignOutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+
+
+                Intent LogoutIntent = new Intent(getActivity().getApplication(),ChooserActivity.class);
+                startActivity(LogoutIntent);
+
+            }
+        });
 
 
 
