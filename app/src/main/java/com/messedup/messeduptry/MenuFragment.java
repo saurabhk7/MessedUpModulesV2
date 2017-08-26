@@ -32,8 +32,21 @@ public class MenuFragment extends Fragment {
 
     ArrayList<String> MessNameList=new ArrayList<>();
     public ArrayList<HashMap<String,String>> AllMessInfoFromDatabase=new ArrayList<>();
-    ArrayList<MenuCardView> AllMessMenu = new ArrayList<>();
+    static ArrayList<MenuCardView> AllMessMenu = new ArrayList<>();
     RecyclerView MyRecyclerView;
+    private static final String TAG_SUCCESS = "success";
+    private static final String TAG_MESSINFO = "messinfo";
+    private static final String TAG_MESSID = "messid";
+    private static final String TAG_NAME = "name";
+    private static final String TAG_RICE = "rice";
+    private static final String TAG_ROTI = "roti";
+    private static final String TAG_SPECIAL = "special";
+    private static final String TAG_SPECIAL_EXTRA = "specialextra";
+    private static final String TAG_VEGIE1 = "vegieone";
+    private static final String TAG_VEGIE2 = "vegietwo";
+    private static final String TAG_VEGIE3 = "vegiethree";
+    private static final String TAG_OTHER = "other";
+    private static boolean POPULATED_FLAG=false;
 
     //  private HashMap<String ,String> MenuHashMap=new HashMap<>();
 
@@ -43,15 +56,15 @@ public class MenuFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initializeHashMaps(); // this will get deleted later as the hasmap will
+       /* initializeHashMaps();*/ // this will get deleted later as the hasmap will
         // be retrieved from the database ..  then uncomment the initilizeList method!
 
        // intializeList();  uncomment this later
     }
 
-    private void initializeHashMaps() {
+    private void initializeHashMaps(View PassedView) {
 
-        new LoadAllMess().execute();
+        new LoadAllMess(PassedView).execute();
 
 /*
 
@@ -120,7 +133,7 @@ public class MenuFragment extends Fragment {
 
     }
 
-    private void intializeList() {
+    private View intializeList(View mPassedView ) {
 
         Log.d("In initialize List",AllMessInfoFromDatabase.toString());
 
@@ -136,34 +149,32 @@ public class MenuFragment extends Fragment {
 
             for (Map.Entry<String,String> entry: MessInfoObj.entrySet()) {
 
-
-
                 switch (entry.getKey()) {
-                    case "messid":
+                    case TAG_MESSID:
                         MessMenuObj.setMessID(entry.getValue());
                         break;
-                    case "rice":
+                    case TAG_RICE:
                         MessMenuObj.setRice(entry.getValue());
                         break;
-                    case "vegieone":
+                    case TAG_VEGIE1:
                         MessMenuObj.setVegieOne(entry.getValue());
                         break;
-                    case "vegietwo":
+                    case TAG_VEGIE2:
                         MessMenuObj.setVegieTwo(entry.getValue());
                         break;
-                    case "vegiethree":
+                    case TAG_VEGIE3:
                         MessMenuObj.setVegieThree(entry.getValue());
                         break;
-                    case "roti":
+                    case TAG_ROTI:
                         MessMenuObj.setRoti(entry.getValue());
                         break;
-                    case "special":
+                    case TAG_SPECIAL:
                         MessMenuObj.setSpecial(entry.getValue());
                         break;
-                    case "specialextra":
+                    case TAG_SPECIAL_EXTRA:
                         MessMenuObj.setSpecialExtra(entry.getValue());
                         break;
-                    case "other":
+                    case TAG_OTHER:
                         MessMenuObj.setOther(entry.getValue());
                         break;
 
@@ -174,8 +185,40 @@ public class MenuFragment extends Fragment {
 
             AllMessMenu.add(MessMenuObj);
 
+            Log.d("ALL MESS MENU : ", AllMessMenu.toString());
+
+
 
         }
+
+        MyRecyclerView = (RecyclerView) mPassedView.findViewById(R.id.cardView);
+        MyRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager MyLayoutManager = new LinearLayoutManager(getActivity());
+        MyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        if (AllMessMenu.size() > 0 & MyRecyclerView != null) {
+            MyRecyclerView.setAdapter(new MyAdapter(AllMessMenu));
+        }
+        MyRecyclerView.setLayoutManager(MyLayoutManager);
+        POPULATED_FLAG=true;
+
+        return mPassedView;
+
+
+
+
+    }
+
+    private void re_initilializeHashMaps(View mPassedView)
+    {
+        MyRecyclerView = (RecyclerView) mPassedView.findViewById(R.id.cardView);
+        MyRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager MyLayoutManager = new LinearLayoutManager(getActivity());
+        MyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        if (AllMessMenu.size() > 0 & MyRecyclerView != null) {
+            MyRecyclerView.setAdapter(new MyAdapter(AllMessMenu));
+        }
+        MyRecyclerView.setLayoutManager(MyLayoutManager);
+        POPULATED_FLAG=true;
 
 
     }
@@ -185,14 +228,23 @@ public class MenuFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_card, container, false);
-        MyRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardView);
+
+        if(!POPULATED_FLAG) {
+            initializeHashMaps(rootView);
+        }
+        else
+        {
+            re_initilializeHashMaps(rootView);
+        }
+
+       /* MyRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardView);
         MyRecyclerView.setHasFixedSize(true);
         LinearLayoutManager MyLayoutManager = new LinearLayoutManager(getActivity());
         MyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         if (AllMessMenu.size() > 0 & MyRecyclerView != null) {
             MyRecyclerView.setAdapter(new MyAdapter(AllMessMenu));
         }
-        MyRecyclerView.setLayoutManager(MyLayoutManager);
+        MyRecyclerView.setLayoutManager(MyLayoutManager);*/
 
         return rootView;
 
@@ -213,6 +265,13 @@ public class MenuFragment extends Fragment {
 
     class LoadAllMess extends AsyncTask<String, String, String> {
 
+        private  View mPassedView;
+
+        LoadAllMess(View PassedView)
+        {
+            mPassedView=PassedView;
+        }
+
         private ProgressDialog pDialog;
 
         // products JSONArray
@@ -220,7 +279,7 @@ public class MenuFragment extends Fragment {
         JSONArray mess2 = null;
 
         JSONParser jParser = new JSONParser();
-        private String url_all_products = "https://wanidipak56.000webhostapp.com/receiveall.php";
+      //  private String url_all_products = "https://wanidipak56.000webhostapp.com/receiveall.php";
         private String url_mess_menu="https://wanidipak56.000webhostapp.com/receivemenu.php";
         //ArrayList<HashMap<String, String>> messList;
 
@@ -254,15 +313,15 @@ public class MenuFragment extends Fragment {
         protected String doInBackground(String... args) {
             List<NameValuePair> params = new ArrayList<>();
             // getting JSON string from URL
-            JSONObject json_obj_all = jParser.makeHttpRequest(url_all_products, "GET", params);
+          //  JSONObject json_obj_all = jParser.makeHttpRequest(url_all_products, "GET", params);
             JSONObject json_obj_menu = jParser.makeHttpRequest(url_mess_menu, "GET", params);
 
             // Check your log cat for JSON reponse
-            Log.d("All Products: ", json_obj_all.toString());
+         //   Log.d("All Products: ", json_obj_all.toString());
 
             try {
                 // Checking for SUCCESS TAG
-                int success1 = json_obj_all.getInt(TAG_SUCCESS);
+           //     int success1 = json_obj_all.getInt(TAG_SUCCESS);
                 int success2 = json_obj_menu.getInt(TAG_SUCCESS);
 /*
 
@@ -308,15 +367,15 @@ public class MenuFragment extends Fragment {
                         JSONObject c = mess2.getJSONObject(i);
 
                         // Storing each json item in variable
-                        String id = c.getString(TAG_MESSID);
-                        String rice = c.getString(TAG_RICE);
-                        String vegie1 = c.getString(TAG_VEGIE1);
-                        String vegie2 = c.getString(TAG_VEGIE2);
-                        String vegie3 = c.getString(TAG_VEGIE3);
-                        String roti = c.getString(TAG_ROTI);
-                        String special = c.getString(TAG_SPECIAL);
-                        String special_extra = c.getString(TAG_SPECIAL_EXTRA);
-                        String other = c.getString(TAG_OTHER);
+                        String id = c.getString(TAG_MESSID).trim();
+                        String rice = c.getString(TAG_RICE).trim();
+                        String vegie1 = c.getString(TAG_VEGIE1).trim();
+                        String vegie2 = c.getString(TAG_VEGIE2).trim();
+                        String vegie3 = c.getString(TAG_VEGIE3).trim();
+                        String roti = c.getString(TAG_ROTI).trim();
+                        String special = c.getString(TAG_SPECIAL).trim();
+                        String special_extra = c.getString(TAG_SPECIAL_EXTRA).trim();
+                        String other = c.getString(TAG_OTHER).trim();
 
 
                         // creating new HashMap
@@ -351,6 +410,8 @@ public class MenuFragment extends Fragment {
 
 
             } catch (JSONException e) {
+                Log.d("IN MY MENU FRAGMENT ","");
+
                 e.printStackTrace();
             }
 
@@ -362,7 +423,7 @@ public class MenuFragment extends Fragment {
          * **/
         protected void onPostExecute(String file_url) {
 
-            intializeList();
+            View v=intializeList(mPassedView);
             // dismiss the dialog after getting all products
 //            pDialog.dismiss();
             // updating UI from Background Thread

@@ -1,6 +1,7 @@
 package com.messedup.messeduptry;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
+        Log.d("IN MY ADAPTER ",list.get(position).getMessID());
+
         holder.MessNameTxtView.setText(list.get(position).getMessID());
 
         setSpecialList(holder,position);
@@ -45,6 +48,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     }
 
     private void setMenuLists(MyViewHolder holder, int position) {
+        Log.d("IN MY ADAPTER ",list.get(position).getMessID());
 
 
         ArrayList<String> items1=new ArrayList<>();
@@ -149,6 +153,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public int getItemCount() {
+        Log.d("IN MY ADAPTER ",""+list.size());
+
         return list.size();
     }
 }
