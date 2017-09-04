@@ -1,8 +1,10 @@
 package com.messedup.messeduptry;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -118,19 +122,57 @@ public class ProfileFragment extends Fragment {
 
         SignOutBtn = (Button)ProfileView.findViewById(R.id.LogOutBtn);
 
+       ImageButton SignOutImgBtn = (ImageButton) ProfileView.findViewById(R.id.LogOUtImgBtn);
+
 
         SignOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
+                /*FirebaseAuth.getInstance().signOut();
 
 
                 Intent LogoutIntent = new Intent(getActivity().getApplication(),ChooserActivity.class);
-                startActivity(LogoutIntent);
+                startActivity(LogoutIntent);*/
 
             }
         });
 
+        SignOutImgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            //    FirebaseAuth.getInstance().signOut();
+
+                SampleDialogFragment fragment
+                        = SampleDialogFragment.newInstance(5,10.0f,true,false);
+                fragment.show(getActivity().getFragmentManager(), "blur_sample");
+
+
+                Intent LogoutIntent = new Intent(getActivity().getApplication(),ChooserActivity.class);
+                //startActivity(LogoutIntent);
+
+            }
+        });
+
+
+        ImageButton shareBtn=(ImageButton)ProfileView.findViewById(R.id.shareAppBtn);
+
+        shareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_SUBJECT, "Messed Up! \nMess, Menu and more!");
+                    String sAux = "\nHey!\nCheckout and Download Messed Up! on Google Play. Download and " +
+                            "get Mess Menu Updates!\n\n";
+                    sAux = sAux + "https://play.google.com/store/apps/details?id=com.messedup.saurabh.mess2 \n\n";
+                    i.putExtra(Intent.EXTRA_TEXT, sAux);
+                    startActivity(Intent.createChooser(i, "Share to"));
+                } catch(Exception e) {
+                    //e.toString();
+                }
+            }
+        });
 
 
 

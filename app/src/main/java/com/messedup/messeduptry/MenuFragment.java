@@ -1,17 +1,33 @@
 package com.messedup.messeduptry;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.transition.Fade;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Toast;
+
+import com.github.johnpersano.supertoasts.library.Style;
+import com.github.johnpersano.supertoasts.library.SuperActivityToast;
+import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
 
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -22,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import dmax.dialog.SpotsDialog;
 
 public class MenuFragment extends Fragment {
     public static MenuFragment newInstance() {
@@ -47,6 +65,9 @@ public class MenuFragment extends Fragment {
     private static final String TAG_VEGIE3 = "vegiethree";
     private static final String TAG_OTHER = "other";
     private static boolean POPULATED_FLAG=false;
+    SpotsDialog LoadingDialog ;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
 
     //  private HashMap<String ,String> MenuHashMap=new HashMap<>();
 
@@ -54,6 +75,7 @@ public class MenuFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
        /* initializeHashMaps();*/ // this will get deleted later as the hasmap will
@@ -200,6 +222,11 @@ public class MenuFragment extends Fragment {
         }
         MyRecyclerView.setLayoutManager(MyLayoutManager);
         POPULATED_FLAG=true;
+        LoadingDialog.dismiss();
+
+        onRefreshComplete("complete");
+        Toast.makeText(getActivity(),"Your Menu is Up to Date!",Toast.LENGTH_SHORT).show();
+
 
         return mPassedView;
 
@@ -207,6 +234,8 @@ public class MenuFragment extends Fragment {
 
 
     }
+
+
 
     private void re_initilializeHashMaps(View mPassedView)
     {
@@ -218,22 +247,55 @@ public class MenuFragment extends Fragment {
             MyRecyclerView.setAdapter(new MyAdapter(AllMessMenu));
         }
         MyRecyclerView.setLayoutManager(MyLayoutManager);
+
+
         POPULATED_FLAG=true;
 
 
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+
         View rootView = inflater.inflate(R.layout.fragment_card, container, false);
 
-        if(!POPULATED_FLAG) {
-            initializeHashMaps(rootView);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         }
-        else
-        {
+
+        // Retrieve the SwipeRefreshLayout and ListView instances
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+
+        // BEGIN_INCLUDE (change_colors)
+        // Set the color scheme of the SwipeRefreshLayout by providing 4 color resource ids
+       /* mSwipeRefreshLayout.setColorScheme(
+                Color.BLUE,Color.CYAN,Color.GREEN,Color.RED);*/
+        // END_INCLUDE (change_colors)
+
+
+
+        LoadingDialog=new SpotsDialog(getActivity(), R.style.Custom);
+
+        if(!POPULATED_FLAG&&isNetworkAvailable()) {
+            LoadingDialog.show();
+            initializeHashMaps(rootView);
+        } else if (!POPULATED_FLAG&&!isNetworkAvailable()) {
+            SuperActivityToast.create(getActivity(), new Style(), Style.TYPE_STANDARD)
+                    .setText("Oops! No Internet Connection!")
+                    .setDuration(Style.DURATION_MEDIUM)
+                    .setFrame(Style.FRAME_LOLLIPOP)
+                    .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED))
+                    .setAnimations(Style.ANIMATIONS_POP).show();
+        } else if (POPULATED_FLAG) {
             re_initilializeHashMaps(rootView);
         }
 
@@ -251,10 +313,60 @@ public class MenuFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+
+        // BEGIN_INCLUDE (setup_refreshlistener)
+        /**
+         * Implement {@link SwipeRefreshLayout.OnRefreshListener}. When users do the "swipe to
+         * refresh" gesture, SwipeRefreshLayout invokes
+         * {@link SwipeRefreshLayout.OnRefreshListener#onRefresh onRefresh()}. In
+         * {@link SwipeRefreshLayout.OnRefreshListener#onRefresh onRefresh()}, call a method that
+         * refreshes the content. Call the same method in response to the Refresh action from the
+         * action bar.
+         */
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i("IN ON REFRESH", "onRefresh called from SwipeRefreshLayout");
+
+                initiateRefresh(view);
+            }
+        });
+        // END_INCLUDE (setup_refreshlistener)
+    }
+    // END_INCLUDE (setup_views)
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
     }
+
+    private void initiateRefresh(View view) {
+        Log.i("IN INITIATE REFRESH", "initiateRefresh");
+
+        /**
+         * Execute the background task, which uses {@link android.os.AsyncTask} to load the data.
+         */
+      //  new DummyBackgroundTask().execute();
+
+        new LoadAllMess(view).execute();
+    }
+
+    private void onRefreshComplete(String url) {
+        Log.i("REFRESH COMPLETE", "onRefreshComplete"+url);
+
+        // Remove all items from the ListAdapter, and then replace them with the new items
+
+
+        // Stop the refreshing indicator
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+
 
 
 
@@ -311,6 +423,19 @@ public class MenuFragment extends Fragment {
         }
 
         protected String doInBackground(String... args) {
+
+            /*final String TAG_SUCCESS = "success";
+              final String TAG_MESSINFO = "messinfo";
+              final String TAG_MESSID = "messid";
+              final String TAG_NAME = "name";
+              final String TAG_RICE = "rice";
+              final String TAG_ROTI = "roti";
+              final String TAG_SPECIAL = "special";
+              final String TAG_SPECIAL_EXTRA = "specialextra";
+              final String TAG_VEGIE1 = "vegieone";
+              final String TAG_VEGIE2 = "vegietwo";
+              final String TAG_VEGIE3 = "vegiethree";
+              final String TAG_OTHER = "other";*/
             List<NameValuePair> params = new ArrayList<>();
             // getting JSON string from URL
           //  JSONObject json_obj_all = jParser.makeHttpRequest(url_all_products, "GET", params);
@@ -322,7 +447,10 @@ public class MenuFragment extends Fragment {
             try {
                 // Checking for SUCCESS TAG
            //     int success1 = json_obj_all.getInt(TAG_SUCCESS);
-                int success2 = json_obj_menu.getInt(TAG_SUCCESS);
+
+
+                    int success2 = json_obj_menu.getInt(TAG_SUCCESS);
+
 /*
 
                 if (success1 == 1) {
@@ -402,18 +530,29 @@ public class MenuFragment extends Fragment {
                     Log.d("inDoinBackground: ID", AllMessInfoFromDatabase.toString());
 
 
+
+
                 } else {
                     // no products found
                     Log.d("Dipak: ", "No Mess found!");
                 }
 
+                }
+                catch (Exception e)
+                {
 
 
-            } catch (JSONException e) {
-                Log.d("IN MY MENU FRAGMENT ","");
 
-                e.printStackTrace();
-            }
+                   /* SuperActivityToast.create(getActivity(), new Style(), Style.TYPE_STANDARD)
+                            .setText("Oops! No Internet Connection!")
+                            .setDuration(Style.DURATION_MEDIUM)
+                            .setFrame(Style.FRAME_LOLLIPOP)
+                            .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED))
+                            .setAnimations(Style.ANIMATIONS_POP).show();*/
+                    e.printStackTrace();
+                }
+
+
 
             return null;
         }
@@ -431,6 +570,42 @@ public class MenuFragment extends Fragment {
         }
 
     }
+
+
+    class DummyBackgroundTask extends AsyncTask<String, String, String> {
+
+        static final int TASK_DURATION = 3 * 1000; // 3 seconds
+
+        @Override
+        protected String doInBackground(String... args) {
+            // Sleep for a small amount of time to simulate a background-task
+            try {
+                Thread.sleep(TASK_DURATION);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+
+            // Return a new random list of cheeses
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+
+            // dismiss the dialog after getting all products
+//            pDialog.dismiss();
+            // updating UI from Background Thread
+            onRefreshComplete(file_url);
+        }
+
+
+    }
+
+
+
+
+
+
 
 
 }

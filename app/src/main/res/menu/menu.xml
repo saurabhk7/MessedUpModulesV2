@@ -2,34 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/spinner"
-        android:icon="@drawable/ic_arrow_drop_down_white_24dp"
+<!--    <item
+        android:id="@+id/college_spinner"
         app:showAsAction="always"
+        app:actionViewClass="android.widget.Spinner"
+        android:actionLayout="@layout/select_college_layout"
         android:visible="true"
-        android:title="Area">
-    </item>
-
-        <item android:id="@+id/action_search"
-            android:title="Search For your Mess"
-            android:icon="@drawable/ic_search_white_24dp"
-            app:showAsAction="always|collapseActionView"
-            app:actionViewClass="android.support.v7.widget.SearchView" />
-
-
-    <item
-        android:id="@+id/notificon"
-        android:icon="@drawable/ic_menu_cart"
-        app:showAsAction="always"
-        android:title="Notifications">
-    </item>
+        android:title="Your College">
+    </item>-->
     <item
         android:id="@+id/filtersorticon"
         android:icon="@drawable/ic_filter_list_white_24dp"
         app:showAsAction="always"
         android:title="Filter">
     </item>
-
 
 
 </menu>

@@ -75,4 +75,17 @@
     <string name="email_fmt">Email: %s</string>
 
 
+    <string-array name="colleges">
+        <item>Top News</item>
+        <item>Business</item>
+        <item>Politics</item>
+        <item>Sports</item>
+        <item>Technology</item>
+        <item>Movies</item>
+    </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
 </resources>

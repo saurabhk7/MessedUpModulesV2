@@ -41,6 +41,9 @@ public class JSONParser {
     public JSONObject makeHttpRequest(String url, String method,
                                       List<NameValuePair> params) {
 
+
+
+
         // Making HTTP request
         try {
 

@@ -31,6 +31,7 @@ public class ChooserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chooser);
 
 
+
         PhoneAuthWithoutUIBtn=(Button)findViewById(R.id.PhoneAuthWithoutUIBtn);
         LoadBtn=(Button)findViewById(R.id.LoadinBtn);
         PhoneAuthWithUIBtn=(Button)findViewById(R.id.PhoneAuthWithUIBtn);

@@ -3,6 +3,7 @@
     package="com.messedup.messeduptry">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".ApplicationClass"
@@ -28,7 +29,9 @@
         <activity android:name=".Main2Activity" />
         <activity android:name=".GoogleSignIn" />
         <activity android:name=".CardView" />
-        <activity android:name=".CardViewActivity"></activity>
+        <activity android:name=".CardViewActivity" />
+        <activity android:name=".TempActivity" />
+        <activity android:name=".MessInfoActivity"></activity>
     </application>
 
 </manifest>
