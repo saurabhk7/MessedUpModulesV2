@@ -125,7 +125,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         try {
                             Picasso.with(Contextparent.getContext()).load(uri).networkPolicy(NetworkPolicy.OFFLINE).into(holder.SpecialImg, new Callback() {
                                 @Override
-                                public void onSuccess() {
+                                public  void onSuccess() {
 
                                 }
 
