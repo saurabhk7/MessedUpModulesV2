@@ -102,9 +102,12 @@ public class MainActivity extends AppCompatActivity {
 
         bottomBar.setDefaultTab(R.id.tab_menu);
 
+
+
         final BottomBarTab notifs = bottomBar.getTabWithId(R.id.tab_notifs);
         notifs.setBadgeCount(3);
 
+        final int[] PREVIOUS_TAB = {R.id.tab_menu};
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
@@ -114,14 +117,21 @@ public class MainActivity extends AppCompatActivity {
                         selectedFragment = NotifFragment.newInstance();
                         replaceFragmentWithAnimationtoRight(selectedFragment, "tag");
                         notifs.removeBadge();
+                        PREVIOUS_TAB[0] =R.id.tab_notifs;
                         break;
                     case R.id.tab_menu:
                         selectedFragment = MenuFragment.newInstance();
-                        replaceFragmentWithAnimationtoLeft(selectedFragment, "tag");
+                        if(PREVIOUS_TAB[0]==R.id.tab_profile)
+                             replaceFragmentWithAnimationtoRight(selectedFragment, "tag");
+                        else
+                            replaceFragmentWithAnimationtoLeft(selectedFragment, "tag");
+
+                        PREVIOUS_TAB[0] =R.id.tab_menu;
                         break;
                     case R.id.tab_profile:
                         selectedFragment = ProfileFragment.newInstance();
                         replaceFragmentWithAnimationtoLeft(selectedFragment, "tag");
+                        PREVIOUS_TAB[0] =R.id.tab_profile;
                         break;
 
                 }
@@ -136,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         Intent temp = new Intent(getApplicationContext(), TempActivity.class);
 
 
-        replaceFragmentWithAnimationtoLeft(MenuFragment.newInstance(), "tag");
+        replaceFragmentWithAnimationtoRight(MenuFragment.newInstance(), "tag");
 
         //Manually displaying the first fragment - one time only
        /* FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

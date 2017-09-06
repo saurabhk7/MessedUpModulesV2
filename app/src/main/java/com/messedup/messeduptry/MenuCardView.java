@@ -136,6 +136,47 @@ public class MenuCardView {
         }
     }*/
 
+    @Override
+    public String toString() {
+
+        try {
+
+            String menu = null;
+            if (Special != null && !Special.equals("null")) {
+                menu = Special + ", ";
+            }
+            if (SpecialExtra != null && !SpecialExtra.equals("null")) {
+                menu = menu + SpecialExtra + ", ";
+            }
+            if (VegieOne != null && !VegieOne.equals("null")) {
+                menu = menu + VegieOne + ", ";
+            }
+            if (VegieTwo != null && !VegieTwo.equals("null")) {
+                menu = menu + VegieTwo + ", ";
+            }
+            if (VegieThree != null && !VegieThree.equals("null")) {
+                menu = menu + VegieThree + ", ";
+            }
+            if (Rice != null && !Rice.equals("null")) {
+                menu = menu + Rice + ", ";
+            }
+            if ((Roti != null && !Roti.equals("null")) && (Other != null && !Other.equals("null"))) {
+                menu = menu + Roti + ", ";
+            }
+            if ((Roti != null && !Roti.equals("null")) && (Other == null && Other.equals("null"))) {
+                menu = menu + Roti + ".";
+            }
+            if (Other != null && !Other.equals("null")) {
+                menu = menu + Other + ".";
+            }
 
 
+            return menu;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return "Menu of: "+MessID;
+        }
+    }
 }

@@ -269,9 +269,6 @@ public class MenuFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_card, container, false);
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        }
-
         // Retrieve the SwipeRefreshLayout and ListView instances
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
@@ -415,6 +412,8 @@ public class MenuFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            AllMessInfoFromDatabase.clear();
            /* pDialog = new ProgressDialog(getActivity().getApplicationContext());
             pDialog.setMessage("Loading products. Please wait...");
             pDialog.setIndeterminate(false);

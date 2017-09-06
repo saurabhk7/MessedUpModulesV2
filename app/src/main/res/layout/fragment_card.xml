@@ -10,7 +10,9 @@ android:id="@+id/swiperefresh">
         android:scrollbars="vertical"
         android:scrollbarThumbVertical="@drawable/custom_scroll_style"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
+
+    </android.support.v7.widget.RecyclerView>
 
 </android.support.v4.widget.SwipeRefreshLayout>
 

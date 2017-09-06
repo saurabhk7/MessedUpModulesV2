@@ -21,51 +21,77 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     public TextView MessNameTxtView,MenuUpdatedTextView,MessOpenBadge,MessCloseBadge,costTextView;
     public ListView SpecialList,MenuListView1,MenuListView2,MenuListView3;
     public LinearLayout MenuLayout;
-    public ImageView OpenImg,CloseImg;
-    public ImageButton MessInfoBtn;
+    public ImageView OpenImg,CloseImg,SpecialImg;
+    public ImageButton MessInfoBtn,ShareMenuBtn;
     private Context context;
 
     public View view;
 public MenuCardView CurrentObj;
 
 
-    public MyViewHolder(final View v) {
+    public MyViewHolder(View v) {
         super(v);
 
-        context=v.getContext();
 
-        MessNameTxtView=(TextView)v.findViewById(R.id.mess_name);
-        MessOpenBadge=(TextView)v.findViewById(R.id.MessOpenBadge);
+        context = v.getContext();
+
+        SpecialImg=(ImageView)v.findViewById(R.id.SpecialImgView);
+
+        MessNameTxtView = (TextView) v.findViewById(R.id.mess_name);
+        MessOpenBadge = (TextView) v.findViewById(R.id.MessOpenBadge);
         MessOpenBadge.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_access_time_green_24dp, 0, 0, 0);
-        MessCloseBadge=(TextView)v.findViewById(R.id.MessCloseBadge);
+        MessCloseBadge = (TextView) v.findViewById(R.id.MessCloseBadge);
         MessCloseBadge.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_access_time_white_24dp, 0, 0, 0);
-        MenuUpdatedTextView=(TextView)v.findViewById(R.id.menu_update_status);
+        MenuUpdatedTextView = (TextView) v.findViewById(R.id.menu_update_status);
         MenuUpdatedTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_done_all_white_24dp, 0, 0, 0);
-        costTextView=(TextView)v.findViewById(R.id.costTextView);
+        costTextView = (TextView) v.findViewById(R.id.costTextView);
         costTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_coins, 0, 0, 0);
 
 
+        SpecialList = (ListView) v.findViewById(R.id.SpecialListView);
+        MenuListView1 = (ListView) v.findViewById(R.id.list_view_1);
+        MenuListView2 = (ListView) v.findViewById(R.id.list_view_2);
+        MenuListView3 = (ListView) v.findViewById(R.id.list_view_3);
+        MessInfoBtn = (ImageButton) v.findViewById(R.id.MessInfoBtn);
 
-        SpecialList=(ListView)v.findViewById(R.id.SpecialListView);
-        MenuListView1=(ListView)v.findViewById(R.id.list_view_1);
-        MenuListView2=(ListView)v.findViewById(R.id.list_view_2);
-        MenuListView3=(ListView)v.findViewById(R.id.list_view_3);
-        MessInfoBtn=(ImageButton)v.findViewById(R.id.MessInfoBtn);
+        MenuLayout = (LinearLayout) v.findViewById(R.id.menu_layout);
 
-        MenuLayout=(LinearLayout)v.findViewById(R.id.menu_layout);
+        OpenImg = (ImageView) v.findViewById(R.id.MessOpenIcon);
+        CloseImg = (ImageView) v.findViewById(R.id.MessCloseIcon);
 
-        OpenImg=(ImageView)v.findViewById(R.id.MessOpenIcon);
-        CloseImg=(ImageView)v.findViewById(R.id.MessCloseIcon);
+        ShareMenuBtn=(ImageButton)v.findViewById(R.id.shareMenuBtn);
 
         view = v;
         view.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 // item clicked
-                Intent InfoIntent=new Intent(view.getContext(),MessInfoActivity.class);
-                InfoIntent.putExtra("messid",CurrentObj.getMessID());
+                Intent InfoIntent = new Intent(view.getContext(), MessInfoActivity.class);
+                InfoIntent.putExtra("messid", CurrentObj.getMessID());
                 view.getContext().startActivity(InfoIntent);
             }
         });
+
+
+        ShareMenuBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_SUBJECT, "Messed Up! \nMess, Menu and more!");
+                    String sAux = "\nHey!\nCheckout today's Lunch at *"+CurrentObj.getMessID()+"* !"+
+                            "\n" +CurrentObj+"\n\nTap for more: ";
+                    sAux = sAux + "https://play.google.com/store/apps/details?id=com.messedup.saurabh.mess2 \n\n";
+                    i.putExtra(Intent.EXTRA_TEXT, sAux);
+                    view.getContext().startActivity(Intent.createChooser(i, "Share to"));
+                } catch(Exception e) {
+                    //e.toString();
+                }
+            }
+        });
+
+
 
 
         /*MenuListView1.setClickable(false);
@@ -87,7 +113,19 @@ public MenuCardView CurrentObj;
 
 
 
+    }
+}
 
+class HeaderViewHolder extends RecyclerView.ViewHolder {
+    public HeaderViewHolder(View itemView) {
+        super(itemView);
 
     }
 }
+class FooterViewHolder extends RecyclerView.ViewHolder {
+    public FooterViewHolder(View itemView) {
+        super(itemView);
+
+    }
+}
+

@@ -3,7 +3,9 @@ package com.messedup.messeduptry;
 import android.animation.AnimatorInflater;
 import android.animation.StateListAnimator;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,58 +18,134 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 /**
  * Created by saurabh on 24/8/17.
  */
 
-public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
+public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private ArrayList<MenuCardView> list;
     private ViewGroup Contextparent;
+
+    private static final int STATIC_CARD = 0;
+    private static final int DYNAMIC_CARD = 1;
+    private static final int STATIC_CARD_FOOT = 2;
+
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReferenceFromUrl("gs://messed-up-try.appspot.com");
+
+
+
+
 
     public MyAdapter(ArrayList<MenuCardView> data) {
         list = data;
     }
 
+
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         // create a new view
         Contextparent=parent;
-        View view = LayoutInflater.from(parent.getContext())
+        View view;
+        if(viewType==STATIC_CARD)
+        {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.static_menu_top_card, parent, false);
+            HeaderViewHolder holder1 = new HeaderViewHolder(view);
+            return holder1;
+        }
+        else if(viewType==STATIC_CARD_FOOT)
+        {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.static_menu_bottom_card, parent, false);
+            FooterViewHolder holder3= new FooterViewHolder(view);
+            return holder3;
+        }
+
+        view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_item, parent, false);
+        MyViewHolder holder2 = new MyViewHolder(view);
+        return holder2;
 
 
-        MyViewHolder holder = new MyViewHolder(view);
-        return holder;
+
+
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder Viewholder, final int ViewPosition) {
 
-        Log.d("IN MY ADAPTER ",list.get(position).getMessID());
+        try {
+            if (Viewholder instanceof MyViewHolder) {
 
-        holder.MessNameTxtView.setText(list.get(position).getMessID());
+                int position=ViewPosition-1;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            holder.MenuUpdatedTextView.setElevation(18f);
-        }
+                final MyViewHolder holder = (MyViewHolder) Viewholder;
 
-        if((position+1)%3==0)
-                holder.MenuUpdatedTextView.setVisibility(View.INVISIBLE);
-        if((position+1)%2==0) {
-            holder.MessOpenBadge.setVisibility(View.INVISIBLE);
-            holder.OpenImg.setVisibility(View.INVISIBLE);
-        }
-        else {
-            holder.MessCloseBadge.setVisibility(View.INVISIBLE);
-            holder.CloseImg.setVisibility(View.INVISIBLE);
+                Log.d("IN MY ADAPTER "+position, list.get(position).getMessID());
 
-        }
+                holder.MessNameTxtView.setText(list.get(position).getMessID());
 
-        holder.CurrentObj=list.get(position);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    holder.MenuUpdatedTextView.setElevation(18f);
+                }
+
+                if ((position + 1) % 3 == 0)
+                    holder.MenuUpdatedTextView.setVisibility(View.INVISIBLE);
+                if ((position + 1) % 2 == 0) {
+                    holder.MessOpenBadge.setVisibility(View.INVISIBLE);
+                    holder.OpenImg.setVisibility(View.INVISIBLE);
+                } else {
+                    holder.MessCloseBadge.setVisibility(View.INVISIBLE);
+                    holder.CloseImg.setVisibility(View.INVISIBLE);
+
+                }
+
+                holder.CurrentObj = list.get(position);
+
+                StorageReference imageRef= storageRef.child("specials").child("kheer"+".jpg");
+
+                imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(final Uri uri) {
+                        try {
+                            Picasso.with(Contextparent.getContext()).load(uri).networkPolicy(NetworkPolicy.OFFLINE).into(holder.SpecialImg, new Callback() {
+                                @Override
+                                public void onSuccess() {
+
+                                }
+
+                                @Override
+                                public void onError() {
+
+                                    Picasso.with(Contextparent.getContext()).load(uri).into(holder.SpecialImg);
+
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.v("E_VALUE", e.getMessage());
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle any errors
+                    }
+                });
 
 
         /*holder.itemView.setClickable(true);
@@ -115,8 +193,27 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         });*/
 
 
-        setSpecialList(holder,position);
-        setMenuLists(holder,position);
+                setSpecialList(holder, position);
+                setMenuLists(holder, position);
+            }
+            else if(Viewholder instanceof HeaderViewHolder)
+            {
+                HeaderViewHolder holder=(HeaderViewHolder)Viewholder;
+
+            }
+
+            else if(Viewholder instanceof FooterViewHolder)
+            {
+                FooterViewHolder holder=(FooterViewHolder)Viewholder;
+
+            }
+
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -211,7 +308,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         {
             Specialitems.add(Special1);
         }
-       if(Special2!=null)
+        if(Special2!=null)
         {
             Specialitems.add(Special2);
         }
@@ -247,9 +344,32 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public int getItemCount() {
-      //  Log.d("IN MY ADAPTER ",""+list.size());
+        //  Log.d("IN MY ADAPTER ",""+list.size());
 
-        return list.size();
+        if (list == null) {
+            return 0;
+        }
+
+        if (list.size() == 0) {
+            //Return 1 here to show nothing
+            return 2;
+        }
+
+        // Add extra view to show the footer view
+        return list.size() + 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(position == 0) {
+            return STATIC_CARD;
+        } else if(position==list.size()+1)
+        {
+            return STATIC_CARD_FOOT;
+        }
+        else {
+            return DYNAMIC_CARD;
+        }
     }
 
 
