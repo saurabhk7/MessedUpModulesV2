@@ -14,7 +14,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by saurabh on 24/8/17.
@@ -28,12 +31,17 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     public ImageView OpenImg,CloseImg,SpecialImg;
     public ImageButton MessInfoBtn,ShareMenuBtn;
     private Context context;
+    MaterialFavoriteButton favorite;
+
+    SharedPreference sharedPreference;
+    List<String> favorites;
+
 
     public View view;
-public MenuCardView CurrentObj;
+    public MenuCardView CurrentObj;
 
 
-    public MyViewHolder(View v) {
+    public MyViewHolder(final View v) {
         super(v);
 
 
@@ -50,7 +58,7 @@ public MenuCardView CurrentObj;
         MenuUpdatedTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_done_all_white_24dp, 0, 0, 0);
         costTextView = (TextView) v.findViewById(R.id.costTextView);
         costTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_coins, 0, 0, 0);
-
+        favorite= (MaterialFavoriteButton)v.findViewById(R.id.favButton);
 
         SpecialList = (ListView) v.findViewById(R.id.SpecialListView);
         MenuListView1 = (ListView) v.findViewById(R.id.list_view_1);
@@ -98,6 +106,50 @@ public MenuCardView CurrentObj;
             }
         });
 
+
+        /*sharedPreference = new SharedPreference();
+        favorites = sharedPreference.getFavorites(v.getContext());
+
+
+        favorite.setOnFavoriteChangeListener(
+                new MaterialFavoriteButton.OnFavoriteChangeListener() {
+                    @Override
+                    public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean isfavorite) {
+                       // Toast.makeText(context,"Fav "+isfavorite+" clicked of: "+CurrentObj.getMessID(),Toast.LENGTH_SHORT).show();
+
+                        if(isfavorite)
+                        {
+                            sharedPreference.addFavorite(context,
+                                    CurrentObj.getMessID());
+                            Toast.makeText(context,"Fav Added of: "+CurrentObj.getMessID(),Toast.LENGTH_SHORT).show();
+
+                            MenuFragment menuFragment=new MenuFragment();
+
+                        }
+                        if(!isfavorite)
+                        {
+                            sharedPreference.removeFavorite(context,
+                                    CurrentObj.getMessID());
+
+                            Toast.makeText(context,"Fav Removed of: "+CurrentObj.getMessID(),Toast.LENGTH_SHORT).show();
+
+                        }
+
+
+
+                    }
+                });
+
+
+        favorite.setOnFavoriteAnimationEndListener(
+                new MaterialFavoriteButton.OnFavoriteAnimationEndListener() {
+                    @Override
+                    public void onAnimationEnd(MaterialFavoriteButton buttonView, boolean favorite) {
+                        //
+                    }
+                });
+
+*/
 
 
 

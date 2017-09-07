@@ -18,7 +18,15 @@ public class MenuCardView implements Serializable {
 
     /*private HashMap<String,String> MessDetailsHasMap=new HashMap<>();
     private HashMap<String ,String> MenuHashMap=new HashMap<>();*/
-    String MessID,Rice,VegieOne,VegieTwo,VegieThree,Roti,Special,SpecialExtra,Other,GCharge,OTime,CTime,Stat;
+    String MessID,Rice,VegieOne,VegieTwo,VegieThree,Roti,Special,SpecialExtra,Other,GCharge,OTime,CTime,Stat,FavMess;
+
+    public String getFavMess() {
+        return FavMess;
+    }
+
+    public void setFavMess(String favMess) {
+        FavMess = favMess;
+    }
 
     public String getGCharge() {
         return GCharge;

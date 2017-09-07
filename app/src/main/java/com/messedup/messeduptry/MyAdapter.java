@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -29,6 +30,7 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by saurabh on 24/8/17.
@@ -46,6 +48,8 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReferenceFromUrl("gs://messed-up-try.appspot.com");
 
+    SharedPreference sharedPreference;
+    List<String> favorites;
 
 
 
@@ -92,7 +96,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         try {
             if (Viewholder instanceof MyViewHolder) {
 
-                int position=ViewPosition-1;
+                final int position=ViewPosition-1;
 
                 final MyViewHolder holder = (MyViewHolder) Viewholder;
 
@@ -103,6 +107,7 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     holder.MenuUpdatedTextView.setElevation(18f);
                 }
+
 
 
                 holder.costTextView.setText(" ₹ "+list.get(position).getGCharge());
@@ -204,6 +209,78 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 setSpecialList(holder, position);
                 setMenuLists(holder, position);
+
+
+
+                sharedPreference = new SharedPreference();
+                favorites = sharedPreference.getFavorites(Contextparent.getContext());
+
+                if(list.get(position).getFavMess().equals("true"))
+                {
+                    holder.favorite.setFavorite(true,false);
+                }
+                else if(list.get(position).getFavMess().equals("false"))
+                {
+                    holder.favorite.setFavorite(false,false);
+                }
+
+
+                holder.favorite.setOnFavoriteChangeListener(
+                        new MaterialFavoriteButton.OnFavoriteChangeListener() {
+                            @Override
+                            public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean isfavorite) {
+                                // Toast.makeText(context,"Fav "+isfavorite+" clicked of: "+CurrentObj.getMessID(),Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+
+
+
+                holder.favorite.setOnFavoriteAnimationEndListener(
+                        new MaterialFavoriteButton.OnFavoriteAnimationEndListener() {
+                            @Override
+                            public void onAnimationEnd(MaterialFavoriteButton buttonView, boolean isfavorite) {
+
+                                if(isfavorite)
+                                {
+                                    sharedPreference.addFavorite(Contextparent.getContext(),
+                                            list.get(position).getMessID());
+                                    Toast.makeText(Contextparent.getContext(),"Fav Added of: "+list.get(position).getMessID(),Toast.LENGTH_SHORT).show();
+                                    list.get(position).setFavMess("true");
+                                    Log.d("After Added","1"+sharedPreference.getFavorites(Contextparent.getContext()).toString());
+
+
+                                     MenuFragment menuFragment=new MenuFragment();
+                                    menuFragment.intializeList(Contextparent);
+
+                                }
+                                if(!isfavorite)
+                                {
+                                    sharedPreference.removeFavorite(Contextparent.getContext(),
+                                            list.get(position).getMessID());
+                                    list.get(position).setFavMess("false");
+
+                                    Toast.makeText(Contextparent.getContext(),"Fav Removed of: "+list.get(position).getMessID(),Toast.LENGTH_SHORT).show();
+
+                                    Log.d("After Removed","2"+sharedPreference.getFavorites(Contextparent.getContext()).toString());
+
+                                    MenuFragment menuFragment=new MenuFragment();
+                                    menuFragment.intializeList(Contextparent);
+
+                                }
+
+
+
+                            }
+                        });
+
+
+
+
+
+
+
+
             }
             else if(Viewholder instanceof HeaderViewHolder)
             {

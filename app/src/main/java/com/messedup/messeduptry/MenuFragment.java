@@ -30,6 +30,7 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
@@ -65,8 +66,8 @@ public class MenuFragment extends Fragment {
 
 
     ArrayList<String> MessNameList=new ArrayList<>();
-    public ArrayList<HashMap<String,String>> AllMessInfoFromDatabase=new ArrayList<>();
-    static ArrayList<MenuCardView> AllMessMenu = new ArrayList<>();
+    public  static ArrayList<HashMap<String,String>> AllMessInfoFromDatabase=new ArrayList<>();
+    public static ArrayList<MenuCardView> AllMessMenu = new ArrayList<>();
     RecyclerView MyRecyclerView;
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_MESSINFO = "messinfo";
@@ -177,8 +178,10 @@ public class MenuFragment extends Fragment {
 
     }
 
-    private View intializeList(final View mPassedView ) {
+    public View intializeList(final View mPassedView ) {
 
+
+        int count=0;
         Log.d("In initialize List", AllMessInfoFromDatabase.toString());
 
         AllMessMenu.clear();
@@ -187,6 +190,18 @@ public class MenuFragment extends Fragment {
             MenuCardView MessMenuObj = new MenuCardView();
 
             Log.d("In initialize List 2", MessInfoObj.toString());
+
+              /*If a product exists in shared preferences then set heart_red drawable
+         * and set a tag*/
+            if (checkFavoriteItem(MessInfoObj.get(TAG_MESSID),mPassedView)) {
+
+                Toast.makeText(mPassedView.getContext(),"Yours Fav: "+MessInfoObj.get(TAG_MESSID),Toast.LENGTH_SHORT).show();
+                MessMenuObj.setFavMess("true");
+
+            } else {
+
+                MessMenuObj.setFavMess("false");
+            }
 
 
             for (Map.Entry<String, String> entry : MessInfoObj.entrySet()) {
@@ -232,12 +247,28 @@ public class MenuFragment extends Fragment {
                         MessMenuObj.setStat(entry.getValue());
                         break;
 
+
                 }
 
 
             }
 
-            AllMessMenu.add(MessMenuObj);
+            if(MessMenuObj.getFavMess().equals("true"))
+            {
+
+                Log.i("MessFavtrue ",MessMenuObj.getMessID());
+                AllMessMenu.add(0,MessMenuObj);
+            }
+            else if(MessMenuObj.getFavMess().equals("false"))
+            {
+                Log.i("MessFavfalse ",MessMenuObj.getMessID());
+
+                AllMessMenu.add(MessMenuObj);
+            }
+
+
+
+
 
             Log.d("ALL MESS MENU : ", AllMessMenu.toString());
 
@@ -253,15 +284,42 @@ public class MenuFragment extends Fragment {
         }
         MyRecyclerView.setLayoutManager(MyLayoutManager);
         POPULATED_FLAG = true;
-        LoadingDialog.dismiss();
 
+        try {
+            LoadingDialog.dismiss();
+
+
+        }
+        catch (Exception e)
+        {
+           // onRefreshComplete("complete");
+          //  Toast.makeText(getActivity(), "Your Menu is Up to Date!", Toast.LENGTH_SHORT).show();
+            return mPassedView;
+        }
         onRefreshComplete("complete");
         Toast.makeText(getActivity(), "Your Menu is Up to Date!", Toast.LENGTH_SHORT).show();
-
-
         return mPassedView;
 
 
+
+    }
+
+
+    /*Checks whether a particular product exists in SharedPreferences*/
+    public boolean checkFavoriteItem(String checkProduct , View passedView) {
+
+        SharedPreference sharedPreference= new SharedPreference();
+        boolean check = false;
+        List<String> favorites = sharedPreference.getFavorites(passedView.getContext());
+        if (favorites != null) {
+            for (String product : favorites) {
+                if (product.equals(checkProduct)) {
+                    check = true;
+                    break;
+                }
+            }
+        }
+        return check;
     }
 
 
@@ -296,6 +354,7 @@ public class MenuFragment extends Fragment {
 
 
         OnCreaterootView = inflater.inflate(R.layout.fragment_card, container, false);
+        MaterialFavoriteButton favorite = (MaterialFavoriteButton)OnCreaterootView.findViewById(R.id.favButton);
 
 
         // Retrieve the SwipeRefreshLayout and ListView instances
@@ -306,6 +365,8 @@ public class MenuFragment extends Fragment {
        /* mSwipeRefreshLayout.setColorScheme(
                 Color.BLUE,Color.CYAN,Color.GREEN,Color.RED);*/
         // END_INCLUDE (change_colors)
+
+
 
 
 
@@ -374,7 +435,7 @@ public class MenuFragment extends Fragment {
                         Toast.makeText(OnCreaterootView.getContext(), "PRESelected College: " + preselectArea, Toast.LENGTH_SHORT).show();
 
                         Log.d("IN selectyourarea", "GOT STRING " + preselectArea);
-                        if (preselectArea.equals("Select Your Area")) {
+                        if (preselectArea.equals("Select your Area")) {
                             updateSharedPrefs("PICT, Dhankawadi");
                             LoadingDialog.show();
                             initiateRefresh(OnCreaterootView, "PICT, Dhankawadi");
@@ -829,7 +890,7 @@ public class MenuFragment extends Fragment {
                         HashMap<String, String> map = new HashMap<>();
 
                         // adding each child node to HashMap key => value
-                        map.put(TAG_MESSID, id+" "+MessArea);
+                        map.put(TAG_MESSID, id);
                         map.put(TAG_RICE, rice);
                         map.put(TAG_VEGIE1, vegie1);
                         map.put(TAG_VEGIE2, vegie2);
