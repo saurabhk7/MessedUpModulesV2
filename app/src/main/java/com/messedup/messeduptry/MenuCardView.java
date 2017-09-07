@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,11 +14,43 @@ import static com.messedup.messeduptry.R.id.map;
  * Created by saurabh on 23/8/17.
  */
 
-public class MenuCardView {
+public class MenuCardView implements Serializable {
 
     /*private HashMap<String,String> MessDetailsHasMap=new HashMap<>();
     private HashMap<String ,String> MenuHashMap=new HashMap<>();*/
-    String MessID,Rice,VegieOne,VegieTwo,VegieThree,Roti,Special,SpecialExtra,Other;
+    String MessID,Rice,VegieOne,VegieTwo,VegieThree,Roti,Special,SpecialExtra,Other,GCharge,OTime,CTime,Stat;
+
+    public String getGCharge() {
+        return GCharge;
+    }
+
+    public void setGCharge(String GCharge) {
+        this.GCharge = GCharge;
+    }
+
+    public String getOTime() {
+        return OTime;
+    }
+
+    public void setOTime(String OTime) {
+        this.OTime = OTime;
+    }
+
+    public String getCTime() {
+        return CTime;
+    }
+
+    public void setCTime(String CTime) {
+        this.CTime = CTime;
+    }
+
+    public String getStat() {
+        return Stat;
+    }
+
+    public void setStat(String stat) {
+        Stat = stat;
+    }
 
     public String getMessID() {
         return MessID;

@@ -2,11 +2,13 @@ package com.messedup.messeduptry;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.transition.Fade;
 import android.support.v4.app.Fragment;
@@ -16,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.transition.Explode;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +26,8 @@ import android.view.View;
 
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.github.johnpersano.supertoasts.library.Style;
@@ -34,12 +39,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import dmax.dialog.SpotsDialog;
+
+import static com.messedup.messeduptry.MainActivity.college_list;
+import static com.messedup.messeduptry.MainActivity.spinner;
 
 public class MenuFragment extends Fragment {
     public static MenuFragment newInstance() {
@@ -64,9 +80,15 @@ public class MenuFragment extends Fragment {
     private static final String TAG_VEGIE2 = "vegietwo";
     private static final String TAG_VEGIE3 = "vegiethree";
     private static final String TAG_OTHER = "other";
+    private static final String TAG_GCHARGE = "gcharge";
+    private static final String TAG_STATUS = "status";
+    private static final String TAG_OPENTIME = "opentime";
+    private static final String TAG_CLOSETIME = "closetime";
     private static boolean POPULATED_FLAG=false;
     SpotsDialog LoadingDialog ;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private  View OnCreaterootView;
+    private Toolbar toolbarFrag;
 
 
     //  private HashMap<String ,String> MenuHashMap=new HashMap<>();
@@ -81,7 +103,7 @@ public class MenuFragment extends Fragment {
        /* initializeHashMaps();*/ // this will get deleted later as the hasmap will
         // be retrieved from the database ..  then uncomment the initilizeList method!
 
-       // intializeList();  uncomment this later
+        // intializeList();  uncomment this later
     }
 
     private void initializeHashMaps(View PassedView) {
@@ -155,21 +177,19 @@ public class MenuFragment extends Fragment {
 
     }
 
-    private View intializeList(View mPassedView ) {
+    private View intializeList(final View mPassedView ) {
 
-        Log.d("In initialize List",AllMessInfoFromDatabase.toString());
+        Log.d("In initialize List", AllMessInfoFromDatabase.toString());
 
         AllMessMenu.clear();
 
-        for (HashMap<String,String> MessInfoObj : AllMessInfoFromDatabase)
-        {
+        for (HashMap<String, String> MessInfoObj : AllMessInfoFromDatabase) {
             MenuCardView MessMenuObj = new MenuCardView();
 
-            Log.d("In initialize List 2",MessInfoObj.toString());
+            Log.d("In initialize List 2", MessInfoObj.toString());
 
 
-
-            for (Map.Entry<String,String> entry: MessInfoObj.entrySet()) {
+            for (Map.Entry<String, String> entry : MessInfoObj.entrySet()) {
 
                 switch (entry.getKey()) {
                     case TAG_MESSID:
@@ -199,6 +219,18 @@ public class MenuFragment extends Fragment {
                     case TAG_OTHER:
                         MessMenuObj.setOther(entry.getValue());
                         break;
+                    case TAG_GCHARGE:
+                        MessMenuObj.setGCharge(entry.getValue());
+                        break;
+                    case TAG_OPENTIME:
+                        MessMenuObj.setOTime(entry.getValue());
+                        break;
+                    case TAG_CLOSETIME:
+                        MessMenuObj.setCTime(entry.getValue());
+                        break;
+                    case TAG_STATUS:
+                        MessMenuObj.setStat(entry.getValue());
+                        break;
 
                 }
 
@@ -208,7 +240,6 @@ public class MenuFragment extends Fragment {
             AllMessMenu.add(MessMenuObj);
 
             Log.d("ALL MESS MENU : ", AllMessMenu.toString());
-
 
 
         }
@@ -221,16 +252,14 @@ public class MenuFragment extends Fragment {
             MyRecyclerView.setAdapter(new MyAdapter(AllMessMenu));
         }
         MyRecyclerView.setLayoutManager(MyLayoutManager);
-        POPULATED_FLAG=true;
+        POPULATED_FLAG = true;
         LoadingDialog.dismiss();
 
         onRefreshComplete("complete");
-        Toast.makeText(getActivity(),"Your Menu is Up to Date!",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "Your Menu is Up to Date!", Toast.LENGTH_SHORT).show();
 
 
         return mPassedView;
-
-
 
 
     }
@@ -266,11 +295,11 @@ public class MenuFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        View rootView = inflater.inflate(R.layout.fragment_card, container, false);
+        OnCreaterootView = inflater.inflate(R.layout.fragment_card, container, false);
 
 
         // Retrieve the SwipeRefreshLayout and ListView instances
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) OnCreaterootView.findViewById(R.id.swiperefresh);
 
         // BEGIN_INCLUDE (change_colors)
         // Set the color scheme of the SwipeRefreshLayout by providing 4 color resource ids
@@ -282,9 +311,9 @@ public class MenuFragment extends Fragment {
 
         LoadingDialog=new SpotsDialog(getActivity(), R.style.Custom);
 
-        if(!POPULATED_FLAG&&isNetworkAvailable()) {
+    /*    if(!POPULATED_FLAG&&isNetworkAvailable()) {
             LoadingDialog.show();
-            initializeHashMaps(rootView);
+            initializeHashMaps(OnCreaterootView);
         } else if (!POPULATED_FLAG&&!isNetworkAvailable()) {
             SuperActivityToast.create(getActivity(), new Style(), Style.TYPE_STANDARD)
                     .setText("Oops! No Internet Connection!")
@@ -292,8 +321,8 @@ public class MenuFragment extends Fragment {
                     .setFrame(Style.FRAME_LOLLIPOP)
                     .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED))
                     .setAnimations(Style.ANIMATIONS_POP).show();
-        } else if (POPULATED_FLAG) {
-            re_initilializeHashMaps(rootView);
+        } else*/ if (POPULATED_FLAG) {
+            re_initilializeHashMaps(OnCreaterootView);
         }
 
        /* MyRecyclerView = (RecyclerView) rootView.findViewById(R.id.cardView);
@@ -305,7 +334,109 @@ public class MenuFragment extends Fragment {
         }
         MyRecyclerView.setLayoutManager(MyLayoutManager);*/
 
-        return rootView;
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        spinner=(Spinner)getActivity().findViewById(R.id.categorySpinner);
+
+
+
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+
+
+                String selectedArea;
+                Log.d("spinner pos: ",i+" "+"" );
+
+                if(adapterView.getItemAtPosition(i)!=null) {
+                    selectedArea = adapterView.getItemAtPosition(i).toString();
+                }
+                else {
+                    selectedArea = college_list.get(i);
+                    Log.d("spinner pos: ","found null using list "+selectedArea);
+
+
+                }
+
+
+               /* selectedArea=selectedArea.replace(",","");
+                selectedArea=selectedArea.replace(" ","");
+                selectedArea=selectedArea.toLowerCase();
+                selectedArea=selectedArea.trim();*/
+
+                try {
+
+
+                    Toast.makeText(OnCreaterootView.getContext(), "Selected College: " + selectedArea, Toast.LENGTH_SHORT).show();
+                    if (selectedArea.equals("Select your Area")) {
+                        String preselectArea = getSharedPrefs();
+                        Toast.makeText(OnCreaterootView.getContext(), "PRESelected College: " + preselectArea, Toast.LENGTH_SHORT).show();
+
+                        Log.d("IN selectyourarea", "GOT STRING " + preselectArea);
+                        if (preselectArea.equals("Select Your Area")) {
+                            updateSharedPrefs("PICT, Dhankawadi");
+                            LoadingDialog.show();
+                            initiateRefresh(OnCreaterootView, "PICT, Dhankawadi");
+                        } else {
+
+                            LoadingDialog.show();
+                            updateSharedPrefs(preselectArea);
+                            initiateRefresh(OnCreaterootView, preselectArea);
+                        }
+
+                    } else {
+
+                        LoadingDialog.show();
+                        updateSharedPrefs(selectedArea);
+                        initiateRefresh(OnCreaterootView, selectedArea);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+              /*  ArrayAdapter myAdap = (ArrayAdapter) spinner.getAdapter(); //cast to an ArrayAdapter
+
+                int spinnerPosition = myAdap.getPosition("PICT, Dhankawadi");
+
+
+                spinner.setSelection(spinnerPosition);*/
+
+            }
+
+
+
+        });
+
+
+        return OnCreaterootView;
+
+    }
+
+
+
+    private void updateSharedPrefs(String selectedArea) {
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("selectedarea",selectedArea);
+        editor.apply();
+        editor.commit();
+
+    }
+
+    private String getSharedPrefs() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String PreStoredArea=preferences.getString("selectedarea", "Select your Area");
+        Log.d("IN SHARED PREFs","GOT STRING "+PreStoredArea);
+        return PreStoredArea;
+
 
     }
 
@@ -348,9 +479,20 @@ public class MenuFragment extends Fragment {
         /**
          * Execute the background task, which uses {@link android.os.AsyncTask} to load the data.
          */
-      //  new DummyBackgroundTask().execute();
+        //  new DummyBackgroundTask().execute();
 
         new LoadAllMess(view).execute();
+    }
+
+    public void initiateRefresh(View view,String area) {
+        Log.i("IN INITIATE REFRESH", "initiateRefresh");
+
+        /**
+         * Execute the background task, which uses {@link android.os.AsyncTask} to load the data.
+         */
+        //  new DummyBackgroundTask().execute();
+
+        new LoadAllMess(view,area).execute();
     }
 
     private void onRefreshComplete(String url) {
@@ -372,23 +514,34 @@ public class MenuFragment extends Fragment {
      * Created by saurabh on 24/8/17.
      */
 
-    class LoadAllMess extends AsyncTask<String, String, String> {
+    public class LoadAllMess extends AsyncTask<String , Void ,String> {
 
         private  View mPassedView;
+        private String MessArea;
+        JSONObject jObj = null;
+        String json = "";
 
         LoadAllMess(View PassedView)
         {
             mPassedView=PassedView;
+            String preselectArea= getSharedPrefs();
+            MessArea=preselectArea;
         }
 
-        private ProgressDialog pDialog;
+        LoadAllMess(View view,String area)
+        {
+            mPassedView=view;
+
+            MessArea=area;
+        }
+
 
         // products JSONArray
         JSONArray mess = null;
         JSONArray mess2 = null;
 
         JSONParser jParser = new JSONParser();
-      //  private String url_all_products = "https://wanidipak56.000webhostapp.com/receiveall.php";
+        //  private String url_all_products = "https://wanidipak56.000webhostapp.com/receiveall.php";
         private String url_mess_menu="https://wanidipak56.000webhostapp.com/receivemenu.php";
         //ArrayList<HashMap<String, String>> messList;
 
@@ -405,6 +558,11 @@ public class MenuFragment extends Fragment {
         private static final String TAG_VEGIE2 = "vegietwo";
         private static final String TAG_VEGIE3 = "vegiethree";
         private static final String TAG_OTHER = "other";
+
+        private static final String TAG_GCHARGE = "gcharge";
+        private static final String TAG_STATUS = "status";
+        private static final String TAG_OPENTIME = "opentime";
+        private static final String TAG_CLOSETIME = "closetime";
 
 
 
@@ -423,6 +581,81 @@ public class MenuFragment extends Fragment {
 
         protected String doInBackground(String... args) {
 
+            OutputStream os = null;
+            InputStream is = null;
+            HttpURLConnection conn = null;
+            try {
+                //constants
+                URL url = new URL("https://wanidipak56.000webhostapp.com/t.php");
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("college", MessArea);
+
+                String message = jsonObject.toString();
+
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout( 10000 /*milliseconds*/ );
+                conn.setConnectTimeout( 15000 /* milliseconds */ );
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(message.getBytes().length);
+
+                //make some HTTP header nicety
+                conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                //open
+                conn.connect();
+
+                //setup send
+                os = new BufferedOutputStream(conn.getOutputStream());
+                os.write(message.getBytes());
+                //clean up
+                os.flush();
+
+
+                //do somehting with response
+                is = conn.getInputStream();
+
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(
+                            is, "iso-8859-1"), 8);
+                    StringBuilder sb = new StringBuilder();
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line + "\n");
+                    }
+                    is.close();
+                    json = sb.toString();
+                } catch (Exception e) {
+                    Log.e("Buffer Error", "Error converting result " + e.toString());
+                }
+
+                // try parse the string to a JSON object
+                try {
+                    jObj = new JSONObject(json);
+                } catch (JSONException e) {
+                    Log.e("JSON Parser", "Error parsing data " + e.toString());
+                }
+                //String contentAsString = readIt(is,len);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }  finally {
+                //clean up
+                try {
+                    os.close();
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                conn.disconnect();
+            }
+            return null;
+
+
             /*final String TAG_SUCCESS = "success";
               final String TAG_MESSINFO = "messinfo";
               final String TAG_MESSID = "messid";
@@ -435,20 +668,20 @@ public class MenuFragment extends Fragment {
               final String TAG_VEGIE2 = "vegietwo";
               final String TAG_VEGIE3 = "vegiethree";
               final String TAG_OTHER = "other";*/
-            List<NameValuePair> params = new ArrayList<>();
+            /*List<NameValuePair> params = new ArrayList<>();
             // getting JSON string from URL
-          //  JSONObject json_obj_all = jParser.makeHttpRequest(url_all_products, "GET", params);
+            //  JSONObject json_obj_all = jParser.makeHttpRequest(url_all_products, "GET", params);
             JSONObject json_obj_menu = jParser.makeHttpRequest(url_mess_menu, "GET", params);
 
             // Check your log cat for JSON reponse
-         //   Log.d("All Products: ", json_obj_all.toString());
+            //   Log.d("All Products: ", json_obj_all.toString());
 
             try {
                 // Checking for SUCCESS TAG
-           //     int success1 = json_obj_all.getInt(TAG_SUCCESS);
+                //     int success1 = json_obj_all.getInt(TAG_SUCCESS);
 
 
-                    int success2 = json_obj_menu.getInt(TAG_SUCCESS);
+                int success2 = json_obj_menu.getInt(TAG_SUCCESS);
 
 /*
 
@@ -482,7 +715,7 @@ public class MenuFragment extends Fragment {
                     // no products found
                     Log.d("Dipak: ", "No Mess found!");
                 }
-*/
+
 
                 if(success2==1){
                     // products found
@@ -509,7 +742,7 @@ public class MenuFragment extends Fragment {
                         HashMap<String, String> map = new HashMap<>();
 
                         // adding each child node to HashMap key => value
-                        map.put(TAG_MESSID, id);
+                        map.put(TAG_MESSID, id+" "+MessArea);
                         map.put(TAG_RICE, rice);
                         map.put(TAG_VEGIE1, vegie1);
                         map.put(TAG_VEGIE2, vegie2);
@@ -536,9 +769,9 @@ public class MenuFragment extends Fragment {
                     Log.d("Dipak: ", "No Mess found!");
                 }
 
-                }
-                catch (Exception e)
-                {
+            }
+            catch (Exception e)
+            {
 
 
 
@@ -547,19 +780,84 @@ public class MenuFragment extends Fragment {
                             .setDuration(Style.DURATION_MEDIUM)
                             .setFrame(Style.FRAME_LOLLIPOP)
                             .setColor(PaletteUtils.getSolidColor(PaletteUtils.MATERIAL_RED))
-                            .setAnimations(Style.ANIMATIONS_POP).show();*/
-                    e.printStackTrace();
-                }
+                            .setAnimations(Style.ANIMATIONS_POP).show();
+                e.printStackTrace();
+            }
 
 
 
-            return null;
+            return null;*/
         }
 
         /**
          * After completing background task Dismiss the progress dialog
          * **/
         protected void onPostExecute(String file_url) {
+
+
+            try {
+                int success = jObj.getInt("success");
+                if (success == 1) {
+                    JSONArray mess2 = jObj.getJSONArray("messinfo");
+
+                    for (int i = 0; i < mess2.length(); i++) {
+                        JSONObject c = mess2.getJSONObject(i);
+
+                        // Storing each json item in variable
+                        String id = c.getString(TAG_MESSID).trim();
+                        String rice = c.getString(TAG_RICE).trim();
+                        String vegie1 = c.getString(TAG_VEGIE1).trim();
+                        String vegie2 = c.getString(TAG_VEGIE2).trim();
+                        String vegie3 = c.getString(TAG_VEGIE3).trim();
+                        String roti = c.getString(TAG_ROTI).trim();
+                        String special = c.getString(TAG_SPECIAL).trim();
+                        String special_extra = c.getString(TAG_SPECIAL_EXTRA).trim();
+                        String other = c.getString(TAG_OTHER).trim();
+
+                        String gcharge = c.getString(TAG_GCHARGE).trim();
+                        String otime = c.getString(TAG_OPENTIME).trim();
+                        String ctime = c.getString(TAG_CLOSETIME).trim();
+
+                        /*String otime = c.getString(TAG_OPENTIME).trim();
+                        String ctime = c.getString(TAG_CLOSETIME).trim();*/
+
+                        String stat = c.getString(TAG_STATUS).trim();
+
+
+
+                        // creating new HashMap
+                        HashMap<String, String> map = new HashMap<>();
+
+                        // adding each child node to HashMap key => value
+                        map.put(TAG_MESSID, id+" "+MessArea);
+                        map.put(TAG_RICE, rice);
+                        map.put(TAG_VEGIE1, vegie1);
+                        map.put(TAG_VEGIE2, vegie2);
+                        map.put(TAG_VEGIE3, vegie3);
+                        map.put(TAG_ROTI, roti);
+                        map.put(TAG_SPECIAL, special);
+                        map.put(TAG_SPECIAL_EXTRA, special_extra);
+                        map.put(TAG_OTHER, other);
+
+                        map.put(TAG_GCHARGE, gcharge);
+                        map.put(TAG_OPENTIME, otime);
+                        map.put(TAG_CLOSETIME, ctime);
+                        map.put(TAG_STATUS, stat);
+
+
+                        Log.d("inDoinBackground: ID", map.toString());
+
+
+                        // adding HashList to ArrayList
+                        AllMessInfoFromDatabase.add(map);
+                    }
+
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             View v=intializeList(mPassedView);
             // dismiss the dialog after getting all products

@@ -3,6 +3,8 @@ package com.messedup.messeduptry;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
@@ -11,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.Serializable;
 
 /**
  * Created by saurabh on 24/8/17.
@@ -67,7 +71,10 @@ public MenuCardView CurrentObj;
             public void onClick(View v) {
                 // item clicked
                 Intent InfoIntent = new Intent(view.getContext(), MessInfoActivity.class);
-                InfoIntent.putExtra("messid", CurrentObj.getMessID());
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("messobj", CurrentObj);
+
+                InfoIntent.putExtras(bundle);
                 view.getContext().startActivity(InfoIntent);
             }
         });

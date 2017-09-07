@@ -2,12 +2,14 @@ package com.messedup.messeduptry;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -21,10 +23,12 @@ import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Explode;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -53,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<String> adapter;
     public static int NOTIFICATION_COUNT;
     LayerDrawable notif_icon;
+    private static int FLAG;
+    public static  Spinner spinner;
+   public static final ArrayList<String> college_list=new ArrayList<>();
+
 
 
 
@@ -122,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.tab_menu:
                         selectedFragment = MenuFragment.newInstance();
                         if(PREVIOUS_TAB[0]==R.id.tab_profile)
-                             replaceFragmentWithAnimationtoRight(selectedFragment, "tag");
+                            replaceFragmentWithAnimationtoRight(selectedFragment, "tag");
                         else
                             replaceFragmentWithAnimationtoLeft(selectedFragment, "tag");
 
@@ -202,12 +210,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-       // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
 
-      //  String[] collegeNames={"PICT, Dhankawadi","BVP, Katraj","Sinhgad COE, Vadgoan","SKNCOE, Ambegaon","VIT, Bibvewadi","Cummins COEW, Karve Nagar"};
+        //  String[] collegeNames={"PICT, Dhankawadi","BVP, Katraj","Sinhgad COE, Vadgoan","SKNCOE, Ambegaon","VIT, Bibvewadi","Cummins COEW, Karve Nagar"};
 
-        ArrayList<String> college_list=new ArrayList<>();
         college_list.add("PICT, Dhankawadi");
         college_list.add("BVP, Katraj");
         college_list.add("SINHAGAD COE, Vadgoan");
@@ -221,9 +228,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         //  MenuItem item = menu.findItem(R.id.college_spinner);
-     //   Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
+        //   Spinner spinner = (Spinner) MenuItemCompat.getActionView(item);
 
-        Spinner spinner=(Spinner)findViewById(R.id.categorySpinner);
+       spinner=(Spinner)findViewById(R.id.categorySpinner);
         spinner.getBackground().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
 
@@ -237,8 +244,73 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(arrayAdapter);
 */
 
-        CustomAdapter customAdapter=new CustomAdapter(this,college_list);
+        CustomAdapter customAdapter=new CustomAdapter(getApplicationContext(),college_list);
         spinner.setAdapter(customAdapter);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String PreStoredArea=preferences.getString("selectedarea", "Select your Area");
+        Log.d("MAINACTIVTY SHARED PREF","GOT STRING "+PreStoredArea);
+
+        int ind=college_list.indexOf(PreStoredArea);
+
+        spinner.setSelection(ind);
+/*
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+
+                FLAG++;
+                String selectedArea;
+                Log.d("spinner pos: ",i+" "+"" );
+
+                if(adapterView.getItemAtPosition(i)!=null) {
+                    selectedArea = adapterView.getItemAtPosition(i).toString();
+                }
+                else {
+                    selectedArea = college_list.get(i);
+                    Log.d("spinner pos: ","found null using list "+selectedArea);
+
+
+                }
+
+
+                selectedArea=selectedArea.replace(",","");
+                selectedArea=selectedArea.replace(" ","");
+                selectedArea=selectedArea.toLowerCase();
+                selectedArea=selectedArea.trim();
+
+                if(FLAG>1) {
+
+                    Toast.makeText(getApplicationContext(), "Selected College: " + selectedArea, Toast.LENGTH_SHORT).show();
+                    MenuFragment menuFragment = new MenuFragment();
+
+                    if (selectedArea.equals("selectyourarea"))
+                        menuFragment.initiateRefresh(view, "pictdhankawadi");
+                    else
+                        menuFragment.initiateRefresh(view, selectedArea);
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+              */
+/*  ArrayAdapter myAdap = (ArrayAdapter) spinner.getAdapter(); //cast to an ArrayAdapter
+
+                int spinnerPosition = myAdap.getPosition("PICT, Dhankawadi");
+
+
+                spinner.setSelection(spinnerPosition);*//*
+
+
+            }
+
+
+
+        });
+*/
 
 
         MenuItemCompat.OnActionExpandListener expandListener = new MenuItemCompat.OnActionExpandListener() {
@@ -247,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(MainActivity.this, "Search Mess", Toast.LENGTH_SHORT).show();
 
-                 // Do something when action item collapses
+                // Do something when action item collapses
                 return true;  // Return true to collapse action view
             }
 

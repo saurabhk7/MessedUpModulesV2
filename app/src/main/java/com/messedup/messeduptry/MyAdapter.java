@@ -104,8 +104,17 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.MenuUpdatedTextView.setElevation(18f);
                 }
 
-                if ((position + 1) % 3 == 0)
+
+                holder.costTextView.setText(" ₹ "+list.get(position).getGCharge());
+
+
+                if (list.get(position).getStat().equals("0"))
                     holder.MenuUpdatedTextView.setVisibility(View.INVISIBLE);
+                else if(list.get(position).getStat().equals("1"))
+                    holder.MenuUpdatedTextView.setVisibility(View.VISIBLE);
+
+
+
                 if ((position + 1) % 2 == 0) {
                     holder.MessOpenBadge.setVisibility(View.INVISIBLE);
                     holder.OpenImg.setVisibility(View.INVISIBLE);
