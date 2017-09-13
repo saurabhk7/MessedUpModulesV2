@@ -81,7 +81,6 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 Intent InfoIntent = new Intent(view.getContext(), MessInfoActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("messobj", CurrentObj);
-
                 InfoIntent.putExtras(bundle);
                 view.getContext().startActivity(InfoIntent);
             }

@@ -31,6 +31,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static android.R.attr.bitmap;
@@ -53,17 +56,26 @@ public class GoogleSignIn extends AppCompatActivity {
 
         mAuth=FirebaseAuth.getInstance();
 
+
+
         mAuthListener=new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(FirebaseAuth.getInstance().getCurrentUser()!=null)
                 {
+                    final ArrayList<HashMap<String, String>> MenuArrayList = (ArrayList<HashMap<String, String>>) getIntent().getSerializableExtra("menuArraylist");
+                    Log.e("GoogAct",MenuArrayList.toString());
                     Intent gotoPhoneAuthInt=new Intent(GoogleSignIn.this,MainActivity.class);
+                    gotoPhoneAuthInt.putExtra("menuArraylist",MenuArrayList);
                     startActivity(gotoPhoneAuthInt);
                 }
 
             }
         };
+
+
+
+
 
         mGoogleBtn=(SignInButton)findViewById(R.id.googleBtn);
         Button mToastBtn = (Button) findViewById(R.id.ToastTestBtn);

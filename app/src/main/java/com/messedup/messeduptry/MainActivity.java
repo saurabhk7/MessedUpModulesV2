@@ -43,6 +43,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -73,6 +74,14 @@ public class MainActivity extends AppCompatActivity {
             setupWindowAnimations();
 
         }
+
+        final ArrayList<HashMap<String, String>> MenuArrayList = (ArrayList<HashMap<String, String>>) getIntent().getSerializableExtra("menuArraylist");
+
+
+        Log.e("MainAct",MenuArrayList.toString());
+
+
+
         setContentView(R.layout.activity_main);
         initToolBar();
         /*final BottomNavigationView bottomNavigationView = (BottomNavigationView)
@@ -123,12 +132,18 @@ public class MainActivity extends AppCompatActivity {
                 switch (tabId) {
                     case R.id.tab_notifs:
                         selectedFragment = NotifFragment.newInstance();
+
                         replaceFragmentWithAnimationtoRight(selectedFragment, "tag");
                         notifs.removeBadge();
                         PREVIOUS_TAB[0] =R.id.tab_notifs;
                         break;
                     case R.id.tab_menu:
+
                         selectedFragment = MenuFragment.newInstance();
+
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("arraylist",MenuArrayList);
+                        selectedFragment.setArguments(bundle);
                         if(PREVIOUS_TAB[0]==R.id.tab_profile)
                             replaceFragmentWithAnimationtoRight(selectedFragment, "tag");
                         else
@@ -154,7 +169,12 @@ public class MainActivity extends AppCompatActivity {
         Intent temp = new Intent(getApplicationContext(), TempActivity.class);
 
 
-        replaceFragmentWithAnimationtoRight(MenuFragment.newInstance(), "tag");
+          Fragment FirstFrag = MenuFragment.newInstance();
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("arraylist",MenuArrayList);
+        FirstFrag.setArguments(bundle);
+        replaceFragmentWithAnimationtoRight(FirstFrag, "tag");
 
         //Manually displaying the first fragment - one time only
        /* FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

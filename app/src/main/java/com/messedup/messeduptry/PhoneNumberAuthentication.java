@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.Arrays;
 
@@ -147,6 +148,8 @@ public class PhoneNumberAuthentication extends AppCompatActivity {
                             FirebaseUser user = task.getResult().getUser();
                             Log.d("Linkingauth", user.getUid());
 
+
+                            FirebaseMessaging.getInstance().subscribeToTopic("allDevice");
 
                             startActivity(new Intent(PhoneNumberAuthentication.this,MainActivity.class));
                             finish();

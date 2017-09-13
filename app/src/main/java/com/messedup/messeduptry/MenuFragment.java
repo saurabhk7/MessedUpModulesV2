@@ -28,12 +28,14 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.apache.http.NameValuePair;
 import org.json.JSONArray;
@@ -59,14 +61,22 @@ import static com.messedup.messeduptry.MainActivity.college_list;
 import static com.messedup.messeduptry.MainActivity.spinner;
 
 public class MenuFragment extends Fragment {
-    public static MenuFragment newInstance() {
+
+    public  static ArrayList<HashMap<String,String>> AllMessInfoFromDatabaseSplash=new ArrayList<>();
+
+    public static MenuFragment newInstance(/*ArrayList<HashMap<String,String>> temp*/) {
         MenuFragment fragment = new MenuFragment();
+      //  AllMessInfoFromDatabaseSplash=temp;
+//        Toast.makeText(fragment.getContext(),"inInstance",Toast.LENGTH_SHORT).show();
         return fragment;
     }
 
 
+
+
     ArrayList<String> MessNameList=new ArrayList<>();
     public  static ArrayList<HashMap<String,String>> AllMessInfoFromDatabase=new ArrayList<>();
+
     public static ArrayList<MenuCardView> AllMessMenu = new ArrayList<>();
     RecyclerView MyRecyclerView;
     private static final String TAG_SUCCESS = "success";
@@ -90,6 +100,7 @@ public class MenuFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private  View OnCreaterootView;
     private Toolbar toolbarFrag;
+    private static boolean FROM_SPLASH_SCREEN=true;
 
 
     //  private HashMap<String ,String> MenuHashMap=new HashMap<>();
@@ -178,10 +189,13 @@ public class MenuFragment extends Fragment {
 
     }
 
-    public View intializeList(final View mPassedView ) {
+
+    public View intializeList(final View mPassedView) {
 
 
-        int count=0;
+
+
+        int count = 0;
         Log.d("In initialize List", AllMessInfoFromDatabase.toString());
 
         AllMessMenu.clear();
@@ -193,12 +207,31 @@ public class MenuFragment extends Fragment {
 
               /*If a product exists in shared preferences then set heart_red drawable
          * and set a tag*/
-            if (checkFavoriteItem(MessInfoObj.get(TAG_MESSID),mPassedView)) {
+            if (checkFavoriteItem(MessInfoObj.get(TAG_MESSID), mPassedView)) {
 
-                Toast.makeText(mPassedView.getContext(),"Yours Fav: "+MessInfoObj.get(TAG_MESSID),Toast.LENGTH_SHORT).show();
+                try { String temp= getTopicName(MessInfoObj.get(TAG_MESSID));
+                    Log.e("topic: ",temp);
+
+                    FirebaseMessaging.getInstance().subscribeToTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+                    // FirebaseMessaging.getInstance().subscribeToTopic("tanmay");
+                }
+                catch (Exception e)
+                {
+                    Log.e("getTopicName"," "+MessInfoObj.get(TAG_MESSID));
+                }
+                Toast.makeText(mPassedView.getContext(), "Yours Fav: " + MessInfoObj.get(TAG_MESSID), Toast.LENGTH_SHORT).show();
                 MessMenuObj.setFavMess("true");
 
             } else {
+                try {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+                    //  FirebaseMessaging.getInstance().unsubscribeFromTopic("tanmay");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    MessMenuObj.setFavMess("false");
+                }
 
                 MessMenuObj.setFavMess("false");
             }
@@ -253,19 +286,27 @@ public class MenuFragment extends Fragment {
 
             }
 
-            if(MessMenuObj.getFavMess().equals("true"))
-            {
+            if (MessMenuObj.getFavMess().equals("true")) {
+                FirebaseMessaging.getInstance().subscribeToTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+                // FirebaseMessaging.getInstance().subscribeToTopic("tanmay");
 
-                Log.i("MessFavtrue ",MessMenuObj.getMessID());
-                AllMessMenu.add(0,MessMenuObj);
+                Log.i("MessFavtrue ", MessMenuObj.getMessID());
+                AllMessMenu.add(0, MessMenuObj);
+            } else if (MessMenuObj.getFavMess().equals("false")) {
+                try {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+                    //  FirebaseMessaging.getInstance().unsubscribeFromTopic("tanmay");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    Log.i("MessFavfalse ", MessMenuObj.getMessID());
+
+                    AllMessMenu.add(MessMenuObj);
+                }
+
+
             }
-            else if(MessMenuObj.getFavMess().equals("false"))
-            {
-                Log.i("MessFavfalse ",MessMenuObj.getMessID());
-
-                AllMessMenu.add(MessMenuObj);
-            }
-
 
 
 
@@ -292,8 +333,8 @@ public class MenuFragment extends Fragment {
         }
         catch (Exception e)
         {
-           // onRefreshComplete("complete");
-          //  Toast.makeText(getActivity(), "Your Menu is Up to Date!", Toast.LENGTH_SHORT).show();
+            // onRefreshComplete("complete");
+            //  Toast.makeText(getActivity(), "Your Menu is Up to Date!", Toast.LENGTH_SHORT).show();
             return mPassedView;
         }
         onRefreshComplete("complete");
@@ -302,6 +343,176 @@ public class MenuFragment extends Fragment {
 
 
 
+    }
+
+    public View intializeList(final View mPassedView ,ArrayList<HashMap<String,String>> AllMessInfoFromDatabaseTemp) {
+
+
+        AllMessInfoFromDatabase=AllMessInfoFromDatabaseTemp;
+
+        int count = 0;
+        Log.d("In initialize List", AllMessInfoFromDatabase.toString());
+
+        AllMessMenu.clear();
+
+        for (HashMap<String, String> MessInfoObj : AllMessInfoFromDatabase) {
+            MenuCardView MessMenuObj = new MenuCardView();
+
+            Log.d("In initialize List 2", MessInfoObj.toString());
+
+              /*If a product exists in shared preferences then set heart_red drawable
+         * and set a tag*/
+            if (checkFavoriteItem(MessInfoObj.get(TAG_MESSID), mPassedView)) {
+
+                try { String temp= getTopicName(MessInfoObj.get(TAG_MESSID));
+                Log.e("topic: ",temp);
+
+                    FirebaseMessaging.getInstance().subscribeToTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+                    // FirebaseMessaging.getInstance().subscribeToTopic("tanmay");
+                }
+                catch (Exception e)
+                {
+                    Log.e("getTopicName"," "+MessInfoObj.get(TAG_MESSID));
+                }
+                Toast.makeText(mPassedView.getContext(), "Yours Fav: " + MessInfoObj.get(TAG_MESSID), Toast.LENGTH_SHORT).show();
+                MessMenuObj.setFavMess("true");
+
+            } else {
+                try {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+                  //  FirebaseMessaging.getInstance().unsubscribeFromTopic("tanmay");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    MessMenuObj.setFavMess("false");
+                }
+
+                MessMenuObj.setFavMess("false");
+            }
+
+
+            for (Map.Entry<String, String> entry : MessInfoObj.entrySet()) {
+
+                switch (entry.getKey()) {
+                    case TAG_MESSID:
+                        MessMenuObj.setMessID(entry.getValue());
+                        break;
+                    case TAG_RICE:
+                        MessMenuObj.setRice(entry.getValue());
+                        break;
+                    case TAG_VEGIE1:
+                        MessMenuObj.setVegieOne(entry.getValue());
+                        break;
+                    case TAG_VEGIE2:
+                        MessMenuObj.setVegieTwo(entry.getValue());
+                        break;
+                    case TAG_VEGIE3:
+                        MessMenuObj.setVegieThree(entry.getValue());
+                        break;
+                    case TAG_ROTI:
+                        MessMenuObj.setRoti(entry.getValue());
+                        break;
+                    case TAG_SPECIAL:
+                        MessMenuObj.setSpecial(entry.getValue());
+                        break;
+                    case TAG_SPECIAL_EXTRA:
+                        MessMenuObj.setSpecialExtra(entry.getValue());
+                        break;
+                    case TAG_OTHER:
+                        MessMenuObj.setOther(entry.getValue());
+                        break;
+                    case TAG_GCHARGE:
+                        MessMenuObj.setGCharge(entry.getValue());
+                        break;
+                    case TAG_OPENTIME:
+                        MessMenuObj.setOTime(entry.getValue());
+                        break;
+                    case TAG_CLOSETIME:
+                        MessMenuObj.setCTime(entry.getValue());
+                        break;
+                    case TAG_STATUS:
+                        MessMenuObj.setStat(entry.getValue());
+                        break;
+
+
+                }
+
+
+            }
+
+            if (MessMenuObj.getFavMess().equals("true")) {
+               FirebaseMessaging.getInstance().subscribeToTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+               // FirebaseMessaging.getInstance().subscribeToTopic("tanmay");
+
+                Log.i("MessFavtrue ", MessMenuObj.getMessID());
+                AllMessMenu.add(0, MessMenuObj);
+            } else if (MessMenuObj.getFavMess().equals("false")) {
+                try {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(getTopicName(MessInfoObj.get(TAG_MESSID)));
+                  //  FirebaseMessaging.getInstance().unsubscribeFromTopic("tanmay");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    Log.i("MessFavfalse ", MessMenuObj.getMessID());
+
+                    AllMessMenu.add(MessMenuObj);
+                }
+
+
+            }
+
+
+
+
+            Log.d("ALL MESS MENU : ", AllMessMenu.toString());
+
+
+        }
+
+        MyRecyclerView = (RecyclerView) mPassedView.findViewById(R.id.cardView);
+        MyRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager MyLayoutManager = new LinearLayoutManager(getActivity());
+        MyLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        if (AllMessMenu.size() > 0 & MyRecyclerView != null) {
+            MyRecyclerView.setAdapter(new MyAdapter(AllMessMenu));
+        }
+        MyRecyclerView.setLayoutManager(MyLayoutManager);
+        POPULATED_FLAG = true;
+
+        try {
+          //  LoadingDialog.dismiss();
+
+
+        }
+        catch (Exception e)
+        {
+            // onRefreshComplete("complete");
+            //  Toast.makeText(getActivity(), "Your Menu is Up to Date!", Toast.LENGTH_SHORT).show();
+            return mPassedView;
+        }
+        onRefreshComplete("complete");
+        Toast.makeText(getActivity(), "Your Menu is Up to Date!", Toast.LENGTH_SHORT).show();
+        return mPassedView;
+
+
+
+    }
+
+    private String getTopicName(String messID) {
+
+        try {
+            messID = messID.replace(" ", "_");
+            messID = messID.toLowerCase();
+            messID = messID.trim();
+        }
+        catch (Exception e)
+        {
+            Log.i("error","Error in topicname");
+        }
+
+        return messID;
     }
 
 
@@ -353,6 +564,11 @@ public class MenuFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
+
+        Bundle b = this.getArguments();
+        if(b.getSerializable("arraylist") != null)
+            AllMessInfoFromDatabaseSplash = (ArrayList<HashMap<String,String>> )b.getSerializable("arraylist");
+
         OnCreaterootView = inflater.inflate(R.layout.fragment_card, container, false);
         MaterialFavoriteButton favorite = (MaterialFavoriteButton)OnCreaterootView.findViewById(R.id.favButton);
 
@@ -399,6 +615,9 @@ public class MenuFragment extends Fragment {
         spinner=(Spinner)getActivity().findViewById(R.id.categorySpinner);
 
 
+        final TextView hiddenTextView = new TextView(getContext());
+        hiddenTextView.setVisibility(View.GONE);
+
 
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -437,20 +656,51 @@ public class MenuFragment extends Fragment {
                         Log.d("IN selectyourarea", "GOT STRING " + preselectArea);
                         if (preselectArea.equals("Select your Area")) {
                             updateSharedPrefs("PICT, Dhankawadi");
+                            hiddenTextView.setText("PICT, Dhankawadi");
+                            FirebaseMessaging.getInstance().subscribeToTopic("pict__dhankawadi");
                             LoadingDialog.show();
                             initiateRefresh(OnCreaterootView, "PICT, Dhankawadi");
                         } else {
 
-                            LoadingDialog.show();
+
                             updateSharedPrefs(preselectArea);
-                            initiateRefresh(OnCreaterootView, preselectArea);
+                            if(FROM_SPLASH_SCREEN)
+                            {
+                                Toast.makeText(OnCreaterootView.getContext(),"From splash screen1",Toast.LENGTH_SHORT).show();
+                                intializeList(OnCreaterootView,AllMessInfoFromDatabaseSplash);
+                                FROM_SPLASH_SCREEN=false;
+
+                            }
+                            else {
+                                LoadingDialog.show();
+                                Toast.makeText(OnCreaterootView.getContext(),"NOT From splash screen1",Toast.LENGTH_SHORT).show();
+
+                                initiateRefresh(OnCreaterootView, preselectArea);
+                            }
                         }
 
                     } else {
 
-                        LoadingDialog.show();
+
                         updateSharedPrefs(selectedArea);
-                        initiateRefresh(OnCreaterootView, selectedArea);
+
+                        FirebaseMessaging.getInstance().subscribeToTopic(selectedArea);
+
+                        if(FROM_SPLASH_SCREEN)
+                        {
+                            Toast.makeText(OnCreaterootView.getContext(),"From splash screen2",Toast.LENGTH_SHORT).show();
+
+
+
+                            intializeList(OnCreaterootView,AllMessInfoFromDatabaseSplash);
+                            FROM_SPLASH_SCREEN=false;
+                        }
+                        else {
+                            LoadingDialog.show();
+                            Toast.makeText(OnCreaterootView.getContext(),"NOT From splash screen2",Toast.LENGTH_SHORT).show();
+
+                            initiateRefresh(OnCreaterootView, selectedArea);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -526,7 +776,7 @@ public class MenuFragment extends Fragment {
         });
         // END_INCLUDE (setup_refreshlistener)
     }
-    // END_INCLUDE (setup_views)
+// END_INCLUDE (setup_views)
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -601,7 +851,7 @@ public class MenuFragment extends Fragment {
         JSONArray mess = null;
         JSONArray mess2 = null;
 
-        JSONParser jParser = new JSONParser();
+        //JSONParser jParser = new JSONParser();
         //  private String url_all_products = "https://wanidipak56.000webhostapp.com/receiveall.php";
         private String url_mess_menu="https://wanidipak56.000webhostapp.com/receivemenu.php";
         //ArrayList<HashMap<String, String>> messList;
@@ -625,7 +875,7 @@ public class MenuFragment extends Fragment {
         private static final String TAG_OPENTIME = "opentime";
         private static final String TAG_CLOSETIME = "closetime";
 
-
+//TODO: give lunch and dinner open/close and open/close status
 
 
         @Override
@@ -914,6 +1164,10 @@ public class MenuFragment extends Fragment {
                     }
 
 
+                }
+                else
+                {
+                    Toast.makeText(mPassedView.getContext(),"Oops,Error Updating Mess Menus",Toast.LENGTH_SHORT).show();
                 }
 
             } catch (JSONException e) {

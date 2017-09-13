@@ -50,7 +50,7 @@ startActivity(new Intent(ChooserActivity.this,CardViewActivity.class));
         GoogleSignBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent toGoogleSignInInt=new Intent(ChooserActivity.this,GoogleSignIn.class);
+                Intent toGoogleSignInInt=new Intent(ChooserActivity.this,SplashScreen.class);
                 startActivity(toGoogleSignInInt);
             }
         });

@@ -23,6 +23,7 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Callback;
@@ -132,6 +133,8 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.CurrentObj = list.get(position);
 
                 StorageReference imageRef= storageRef.child("specials").child("kheer"+".jpg");
+
+               
 
                 imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
@@ -249,7 +252,8 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                     list.get(position).setFavMess("true");
                                     Log.d("After Added","1"+sharedPreference.getFavorites(Contextparent.getContext()).toString());
 
-
+                                   FirebaseMessaging.getInstance().subscribeToTopic(getTopicName(list.get(position).getMessID()));
+                                   // FirebaseMessaging.getInstance().subscribeToTopic("tanmay");
                                      MenuFragment menuFragment=new MenuFragment();
                                     menuFragment.intializeList(Contextparent);
 
@@ -263,9 +267,16 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                                     Toast.makeText(Contextparent.getContext(),"Fav Removed of: "+list.get(position).getMessID(),Toast.LENGTH_SHORT).show();
 
                                     Log.d("After Removed","2"+sharedPreference.getFavorites(Contextparent.getContext()).toString());
+                                    try {
+                                       FirebaseMessaging.getInstance().unsubscribeFromTopic(getTopicName(list.get(position).getMessID()));
+                                      //  FirebaseMessaging.getInstance().unsubscribeFromTopic("tanmay");
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    } finally {
+                                        MenuFragment menuFragment=new MenuFragment();
+                                        menuFragment.intializeList(Contextparent);
+                                    }
 
-                                    MenuFragment menuFragment=new MenuFragment();
-                                    menuFragment.intializeList(Contextparent);
 
                                 }
 
@@ -457,6 +468,15 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return DYNAMIC_CARD;
         }
     }
+
+    private String getTopicName(String messID) {
+
+        messID=messID.replace(" ","_");
+        messID=messID.toLowerCase();
+        messID=messID.trim();
+        return messID;
+    }
+
 
 
 }

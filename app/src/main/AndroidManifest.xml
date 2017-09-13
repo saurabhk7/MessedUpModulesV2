@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
+
+
     <application
         android:name=".ApplicationClass"
         android:allowBackup="true"
@@ -32,9 +34,36 @@
         <activity android:name=".CardView" />
         <activity android:name=".CardViewActivity" />
         <activity android:name=".TempActivity" />
-        <activity android:name=".MessInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".MessInfoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".SplashScreen"></activity>
+
+
+
+        <service android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".FirebaseIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_spoonfork_notif" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorPrimary" />
+
 
     </application>
+
+
 
 </manifest>
